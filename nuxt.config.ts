@@ -6,6 +6,11 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ['@nuxt/fonts'],
   css: ['~/assets/css/main.css'],
+  fonts: {
+    families: [
+      { name: 'Inter', provider: 'google' }
+    ]
+  },
   vite: {
     plugins: [tailwindcss()],
   },

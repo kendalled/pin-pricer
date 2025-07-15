@@ -1,1 +1,6 @@
 @import "tailwindcss";
+
+html {
+  font-family: 'Inter', sans-serif;
+  font-feature-settings: 'tnum'; /* Enable tabular figures for numbers */
+}
