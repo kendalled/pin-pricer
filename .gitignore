@@ -23,3 +23,5 @@ logs
 .env.*
 !.env.example
 /.kiro/*
+CLAUDE.md
+calculator_prompt.md
