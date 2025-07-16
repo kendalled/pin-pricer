@@ -1,144 +1,170 @@
 <template>
-  <div class="space-y-6">
+  <div class="space-y-6 xs:space-y-8">
     <!-- Backing Options -->
-    <div>
-      <h3 class="text-lg font-semibold text-slate-200 mb-4">Backing Options</h3>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+    <fieldset>
+      <legend class="text-lg font-semibold text-slate-200 mb-4 high-contrast:text-white">
+        Backing Options
+      </legend>
+      <div 
+        class="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 gap-3 xs:gap-4"
+        role="radiogroup"
+        aria-labelledby="backing-options-legend"
+      >
         <label
           v-for="option in backingOptions"
           :key="option.id"
-          :class="[
-            'relative flex items-center p-4 border rounded-lg cursor-pointer transition-all duration-200',
-            'hover:bg-slate-700/50 focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2 focus-within:ring-offset-slate-900',
-            selectedBacking?.id === option.id
-              ? 'bg-blue-900/30 border-blue-500 text-blue-200'
-              : 'bg-slate-800 border-slate-600 text-slate-300 hover:border-slate-500'
-          ]"
+          :class="getOptionClasses(selectedBacking?.id === option.id)"
+          @keydown.enter="selectBacking(option)"
+          @keydown.space.prevent="selectBacking(option)"
         >
           <input
             type="radio"
+            name="backing-option"
             :value="option.id"
             :checked="selectedBacking?.id === option.id"
             @change="selectBacking(option)"
+            :aria-describedby="`backing-${option.id}-price`"
             class="sr-only"
           />
           <div class="flex-1 min-w-0">
-            <div class="flex items-center justify-between">
-              <span class="font-medium truncate">{{ option.name }}</span>
+            <div class="flex flex-col xs:flex-row xs:items-center xs:justify-between gap-1 xs:gap-2">
+              <span class="font-medium text-sm xs:text-base leading-tight">{{ option.name }}</span>
               <span
+                :id="`backing-${option.id}-price`"
                 :class="[
-                  'text-sm font-semibold ml-2 flex-shrink-0',
-                  option.isFree ? 'text-green-400' : 'text-slate-400'
+                  'text-sm font-semibold flex-shrink-0',
+                  option.isFree ? 'text-green-400 high-contrast:text-green-300' : 'text-slate-400 high-contrast:text-slate-300'
                 ]"
               >
-                {{ option.isFree ? 'FREE' : formatPrice(option.price) }}
+                {{ option.isFree ? 'FREE' : `$${formatPrice(option.price)}` }}
               </span>
             </div>
           </div>
           <!-- Radio indicator -->
           <div
             :class="[
-              'ml-3 w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all duration-200',
+              'ml-3 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-250 flex-shrink-0',
               selectedBacking?.id === option.id
-                ? 'border-blue-500 bg-blue-500'
-                : 'border-slate-500'
+                ? 'border-blue-500 bg-blue-500 high-contrast:border-blue-300 high-contrast:bg-blue-700'
+                : 'border-slate-500 high-contrast:border-slate-300'
             ]"
+            aria-hidden="true"
           >
             <div
               v-if="selectedBacking?.id === option.id"
-              class="w-2 h-2 rounded-full bg-white"
+              class="w-2.5 h-2.5 rounded-full bg-white"
             />
           </div>
         </label>
       </div>
-    </div>
+    </fieldset>
 
     <!-- Packaging Options -->
-    <div>
-      <h3 class="text-lg font-semibold text-slate-200 mb-4">Packaging Options</h3>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+    <fieldset>
+      <legend class="text-lg font-semibold text-slate-200 mb-4 high-contrast:text-white">
+        Packaging Options
+      </legend>
+      <div 
+        class="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 gap-3 xs:gap-4"
+        role="radiogroup"
+        aria-labelledby="packaging-options-legend"
+      >
         <label
           v-for="option in packagingOptions"
           :key="option.id"
-          :class="[
-            'relative flex items-center p-4 border rounded-lg cursor-pointer transition-all duration-200',
-            'hover:bg-slate-700/50 focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2 focus-within:ring-offset-slate-900',
-            selectedPackaging?.id === option.id
-              ? 'bg-blue-900/30 border-blue-500 text-blue-200'
-              : 'bg-slate-800 border-slate-600 text-slate-300 hover:border-slate-500'
-          ]"
+          :class="getOptionClasses(selectedPackaging?.id === option.id)"
+          @keydown.enter="selectPackaging(option)"
+          @keydown.space.prevent="selectPackaging(option)"
         >
           <input
             type="radio"
+            name="packaging-option"
             :value="option.id"
             :checked="selectedPackaging?.id === option.id"
             @change="selectPackaging(option)"
+            :aria-describedby="`packaging-${option.id}-price`"
             class="sr-only"
           />
           <div class="flex-1 min-w-0">
-            <div class="flex items-center justify-between">
-              <span class="font-medium truncate">{{ option.name }}</span>
+            <div class="flex flex-col xs:flex-row xs:items-center xs:justify-between gap-1 xs:gap-2">
+              <span class="font-medium text-sm xs:text-base leading-tight">{{ option.name }}</span>
               <span
+                :id="`packaging-${option.id}-price`"
                 :class="[
-                  'text-sm font-semibold ml-2 flex-shrink-0',
-                  option.isFree ? 'text-green-400' : 'text-slate-400'
+                  'text-sm font-semibold flex-shrink-0',
+                  option.isFree ? 'text-green-400 high-contrast:text-green-300' : 'text-slate-400 high-contrast:text-slate-300'
                 ]"
               >
-                {{ option.isFree ? 'FREE' : formatPrice(option.price) }}
+                {{ option.isFree ? 'FREE' : `$${formatPrice(option.price)}` }}
               </span>
             </div>
           </div>
           <!-- Radio indicator -->
           <div
             :class="[
-              'ml-3 w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all duration-200',
+              'ml-3 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-250 flex-shrink-0',
               selectedPackaging?.id === option.id
-                ? 'border-blue-500 bg-blue-500'
-                : 'border-slate-500'
+                ? 'border-blue-500 bg-blue-500 high-contrast:border-blue-300 high-contrast:bg-blue-700'
+                : 'border-slate-500 high-contrast:border-slate-300'
             ]"
+            aria-hidden="true"
           >
             <div
               v-if="selectedPackaging?.id === option.id"
-              class="w-2 h-2 rounded-full bg-white"
+              class="w-2.5 h-2.5 rounded-full bg-white"
             />
           </div>
         </label>
       </div>
-    </div>
+    </fieldset>
 
     <!-- Rush Order Toggle -->
     <div>
-      <div class="flex items-center justify-between p-4 bg-slate-800 border border-slate-600 rounded-lg">
+      <div 
+        class="flex flex-col xs:flex-row xs:items-center xs:justify-between gap-4 p-4 xs:p-6 bg-slate-800 border border-slate-600 rounded-xl high-contrast:bg-slate-950 high-contrast:border-slate-300"
+        role="group"
+        aria-labelledby="rush-order-heading"
+      >
         <div class="flex-1">
-          <h3 class="text-lg font-semibold text-slate-200">Rush Order</h3>
-          <p class="text-sm text-slate-400 mt-1">
+          <h3 id="rush-order-heading" class="text-lg font-semibold text-slate-200 high-contrast:text-white">
+            Rush Order
+          </h3>
+          <p class="text-sm text-slate-400 mt-1 high-contrast:text-slate-300 leading-relaxed">
             Add 20% to total price for expedited processing
           </p>
         </div>
-        <label class="relative inline-flex items-center cursor-pointer ml-4">
+        <label class="relative inline-flex items-center cursor-pointer">
           <input
             type="checkbox"
             :checked="rushOrder"
             @change="toggleRushOrder"
+            @keydown.enter="toggleRushOrder"
+            @keydown.space.prevent="toggleRushOrder"
             class="sr-only peer"
+            :aria-describedby="rushOrder ? 'rush-enabled' : 'rush-disabled'"
           />
           <div
             :class="[
-              'relative w-11 h-6 rounded-full transition-colors duration-200 ease-in-out',
-              'peer-focus:ring-2 peer-focus:ring-blue-500 peer-focus:ring-offset-2 peer-focus:ring-offset-slate-900',
+              'relative w-12 h-7 rounded-full transition-all duration-250 ease-in-out',
+              'peer-focus-visible:ring-3 peer-focus-visible:ring-blue-500 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-slate-900',
+              'reduced-motion:transition-none',
               rushOrder
-                ? 'bg-blue-600'
-                : 'bg-slate-600'
+                ? 'bg-blue-550 high-contrast:bg-blue-700'
+                : 'bg-slate-600 high-contrast:bg-slate-700'
             ]"
           >
             <div
               :class="[
-                'absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform duration-200 ease-in-out',
+                'absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full transition-transform duration-250 ease-in-out shadow-sm',
+                'reduced-motion:transition-none',
                 rushOrder ? 'translate-x-5' : 'translate-x-0'
               ]"
             />
           </div>
-          <span class="ml-3 text-sm font-medium text-slate-300">
+          <span 
+            :id="rushOrder ? 'rush-enabled' : 'rush-disabled'"
+            class="ml-3 text-sm font-medium text-slate-300 high-contrast:text-slate-200"
+          >
             {{ rushOrder ? 'Enabled' : 'Disabled' }}
           </span>
         </label>
@@ -163,7 +189,7 @@ interface Emits {
   (e: 'rush-toggle', enabled: boolean): void;
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   selectedBacking: null,
   selectedPackaging: null,
   rushOrder: false
@@ -212,12 +238,38 @@ const toggleRushOrder = (event: Event) => {
 const formatPrice = (price: number): string => {
   try {
     if (typeof price !== 'number' || isNaN(price) || price < 0) {
-      return '$0.00';
+      return '0.00';
     }
-    return `$${price.toFixed(2)}`;
+    return price.toFixed(2);
   } catch (error) {
     console.error('Error formatting price:', error);
-    return '$0.00';
+    return '0.00';
   }
+};
+
+const getOptionClasses = (isSelected: boolean): string => {
+  const baseClasses = [
+    'relative flex items-center p-3 xs:p-4 border rounded-xl cursor-pointer',
+    'transition-all duration-250 ease-in-out',
+    'focus-within:ring-3 focus-within:ring-blue-500 focus-within:ring-offset-2 focus-within:ring-offset-slate-900',
+    'min-h-[44px]', // Enhanced touch target
+    'reduced-motion:transition-none'
+  ].join(' ');
+  
+  if (isSelected) {
+    return [
+      baseClasses,
+      'bg-blue-900/30 border-blue-500 text-blue-200 shadow-md',
+      'high-contrast:bg-blue-800 high-contrast:border-blue-300 high-contrast:text-white'
+    ].join(' ');
+  }
+  
+  return [
+    baseClasses,
+    'bg-slate-800 border-slate-600 text-slate-300',
+    'hover:bg-slate-700/50 hover:border-slate-500 hover:text-slate-200 hover:shadow-sm',
+    'active:bg-slate-700 active:scale-95',
+    'high-contrast:bg-slate-950 high-contrast:border-slate-300 high-contrast:text-white'
+  ].join(' ');
 };
 </script>

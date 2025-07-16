@@ -1,47 +1,74 @@
 <template>
-  <div class="pricing-table-container">
-    <!-- Table Header -->
+  <div class="pricing-table-container" role="region" aria-label="Pricing table for size and quantity selection">
+    <!-- Mobile-first responsive table -->
     <div class="overflow-x-auto">
-      <div class="min-w-[600px]">
+      <div class="min-w-[320px] xs:min-w-[480px] sm:min-w-[600px] lg:min-w-[700px]">
         <!-- Size/Quantity Grid -->
-        <div class="grid grid-cols-8 gap-1 mb-4">
+        <div 
+          class="grid grid-cols-4 xs:grid-cols-6 sm:grid-cols-8 gap-1 mb-4"
+          role="grid"
+          aria-label="Price matrix with sizes and quantities"
+        >
           <!-- Top-left empty cell -->
-          <div class="p-3 text-center font-semibold text-slate-400 text-sm">
-            Size / Qty
+          <div 
+            class="p-2 xs:p-3 text-center font-semibold text-slate-400 text-xs xs:text-sm"
+            role="columnheader"
+            aria-label="Size and quantity intersection"
+          >
+            <span class="hidden xs:inline">Size / Qty</span>
+            <span class="xs:hidden">Size/Qty</span>
           </div>
           
-          <!-- Quantity headers -->
+          <!-- Quantity headers - responsive visibility -->
           <div 
-            v-for="quantity in quantities" 
+            v-for="quantity in visibleQuantities" 
             :key="quantity"
-            class="p-3 text-center font-semibold text-slate-200 text-sm bg-slate-800 rounded-lg"
+            class="p-2 xs:p-3 text-center font-semibold text-slate-200 text-xs xs:text-sm bg-slate-800 rounded-lg high-contrast:bg-slate-950 high-contrast:border high-contrast:border-slate-300"
+            role="columnheader"
+            :aria-label="`Quantity ${quantity.toLocaleString()}`"
           >
-            {{ quantity.toLocaleString() }}
+            <span class="hidden xs:inline">{{ quantity.toLocaleString() }}</span>
+            <span class="xs:hidden">{{ formatQuantityShort(quantity) }}</span>
           </div>
           
           <!-- Size rows with pricing cells -->
-          <template v-for="size in sizes" :key="size">
+          <template v-for="(size, sizeIndex) in sizes" :key="size">
             <!-- Size header -->
-            <div class="p-3 text-center font-semibold text-slate-200 text-sm bg-slate-800 rounded-lg">
+            <div 
+              class="p-2 xs:p-3 text-center font-semibold text-slate-200 text-xs xs:text-sm bg-slate-800 rounded-lg high-contrast:bg-slate-950 high-contrast:border high-contrast:border-slate-300"
+              role="rowheader"
+              :aria-label="`Size ${size} inches`"
+            >
               {{ size }}"
             </div>
             
             <!-- Price cells for this size -->
             <button
-              v-for="quantity in quantities"
+              v-for="(quantity, qtyIndex) in visibleQuantities"
               :key="`${size}-${quantity}`"
               @click="selectCell(size, quantity)"
+              @keydown.enter="selectCell(size, quantity)"
+              @keydown.space.prevent="selectCell(size, quantity)"
+              @keydown.arrow-up="navigateCell(sizeIndex - 1, qtyIndex)"
+              @keydown.arrow-down="navigateCell(sizeIndex + 1, qtyIndex)"
+              @keydown.arrow-left="navigateCell(sizeIndex, qtyIndex - 1)"
+              @keydown.arrow-right="navigateCell(sizeIndex, qtyIndex + 1)"
               @mouseenter="hoveredCell = `${size}-${quantity}`"
               @mouseleave="hoveredCell = null"
+              :ref="el => setCellRef(el, sizeIndex, qtyIndex)"
               :class="getCellClasses(size, quantity)"
-              class="p-3 text-center text-sm font-medium transition-all duration-200 rounded-lg border-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-slate-900"
+              :aria-label="getCellAriaLabel(size, quantity)"
+              :aria-pressed="selectedSize === size && selectedQuantity === quantity"
+              class="p-2 xs:p-3 text-center text-xs xs:text-sm font-medium transition-all duration-250 rounded-lg border-2 focus:outline-none focus-visible:ring-3 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 min-h-[44px] reduced-motion:transition-none"
+              role="gridcell"
+              :tabindex="getTabIndex(size, quantity)"
             >
-              <div class="flex flex-col">
-                <span class="text-xs text-slate-400 mb-1">per unit</span>
-                <span class="font-semibold">
+              <div class="flex flex-col justify-center min-h-[2rem] xs:min-h-[2.5rem]">
+                <span class="text-xs text-slate-400 mb-0.5 xs:mb-1 hidden xs:block">per unit</span>
+                <span class="font-semibold text-xs xs:text-sm">
                   ${{ formatPrice(getPrice(size, quantity)) }}
                 </span>
-                <span class="text-xs text-slate-300 mt-1">
+                <span class="text-xs text-slate-300 mt-0.5 xs:mt-1 hidden sm:block">
                   Total: ${{ formatPrice(getPrice(size, quantity) * quantity) }}
                 </span>
               </div>
@@ -51,16 +78,34 @@
       </div>
     </div>
     
+    <!-- Show more quantities button for mobile -->
+    <div v-if="!showAllQuantities && quantities.length > visibleQuantities.length" class="mb-4 text-center sm:hidden">
+      <Button 
+        variant="ghost" 
+        size="sm" 
+        @click="showAllQuantities = true"
+        aria-label="Show all quantity options"
+      >
+        Show More Quantities ({{ quantities.length - visibleQuantities.length }} more)
+      </Button>
+    </div>
+    
     <!-- Selection Summary -->
-    <div v-if="selectedSize && selectedQuantity" class="mt-4 p-4 bg-slate-800 rounded-lg border border-slate-700">
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+    <div 
+      v-if="selectedSize && selectedQuantity" 
+      class="mt-4 p-3 xs:p-4 bg-slate-800 rounded-xl border border-slate-700 high-contrast:bg-slate-950 high-contrast:border-slate-300"
+      role="status"
+      aria-live="polite"
+      aria-label="Current selection summary"
+    >
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 xs:gap-3">
         <div class="text-slate-200">
           <span class="font-semibold">Selected:</span>
-          {{ selectedSize }}" × {{ selectedQuantity.toLocaleString() }} units
+          <span class="ml-1">{{ selectedSize }}" × {{ selectedQuantity.toLocaleString() }} units</span>
         </div>
-        <div class="text-right">
+        <div class="text-left sm:text-right">
           <div class="text-sm text-slate-400">Unit Price: ${{ formatPrice(unitPrice) }}</div>
-          <div class="text-lg font-bold text-slate-100">
+          <div class="text-lg font-bold text-slate-100 high-contrast:text-white">
             Base Total: ${{ formatPrice(baseTotal) }}
           </div>
         </div>
@@ -71,8 +116,10 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+import type { ComponentPublicInstance } from 'vue';
 import type { PlatingType } from '~/types/pricing';
 import { SIZES, QUANTITIES } from '~/data/pricing';
+import Button from '~/components/ui/Button.vue';
 
 interface Props {
   platingType: PlatingType;
@@ -89,8 +136,23 @@ const emit = defineEmits<Emits>();
 
 // Reactive data
 const hoveredCell = ref<string | null>(null);
+const showAllQuantities = ref(false);
+const cellRefs = ref<(HTMLElement | null)[][]>([]);
 const sizes = SIZES;
 const quantities = QUANTITIES;
+
+// Responsive quantity display
+const visibleQuantities = computed(() => {
+  if (showAllQuantities.value) return quantities;
+  
+  // Show fewer quantities on mobile, more on larger screens
+  if (typeof window !== 'undefined') {
+    const width = window.innerWidth;
+    if (width < 475) return quantities.slice(0, 3); // xs: show 3
+    if (width < 640) return quantities.slice(0, 5); // sm: show 5
+  }
+  return quantities; // Show all on larger screens
+});
 
 // Computed properties
 const unitPrice = computed(() => {
@@ -122,6 +184,11 @@ const formatPrice = (price: number): string => {
   return price.toFixed(2);
 };
 
+const formatQuantityShort = (quantity: number): string => {
+  if (quantity >= 1000) return `${quantity / 1000}k`;
+  return quantity.toString();
+};
+
 const selectCell = (size: string, quantity: number) => {
   try {
     // Validate the selection
@@ -148,15 +215,55 @@ const getCellClasses = (size: string, quantity: number): string => {
   const isSelected = props.selectedSize === size && props.selectedQuantity === quantity;
   const isHovered = hoveredCell.value === cellKey;
   
-  let classes = 'bg-slate-700 border-slate-600 text-slate-200 hover:bg-slate-600 hover:border-slate-500';
+  const baseClasses = [
+    'high-contrast:border-slate-300',
+    'hover:shadow-md active:scale-95'
+  ].join(' ');
   
   if (isSelected) {
-    classes = 'bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-500/25';
+    return `bg-blue-550 border-blue-500 text-white shadow-lg shadow-blue-500/25 high-contrast:bg-blue-700 high-contrast:border-blue-300 ${baseClasses}`;
   } else if (isHovered) {
-    classes = 'bg-slate-600 border-slate-500 text-slate-100 shadow-md';
+    return `bg-slate-600 border-slate-500 text-slate-100 shadow-md ${baseClasses}`;
   }
   
-  return classes;
+  return `bg-slate-700 border-slate-600 text-slate-200 hover:bg-slate-600 hover:border-slate-500 ${baseClasses}`;
+};
+
+const getCellAriaLabel = (size: string, quantity: number): string => {
+  const price = getPrice(size, quantity);
+  const total = price * quantity;
+  return `Size ${size} inches, quantity ${quantity.toLocaleString()}, unit price $${formatPrice(price)}, total $${formatPrice(total)}`;
+};
+
+const getTabIndex = (size: string, quantity: number): number => {
+  // Only the selected cell or first cell should be tabbable
+  if (props.selectedSize === size && props.selectedQuantity === quantity) return 0;
+  if (!props.selectedSize && !props.selectedQuantity && size === sizes[0] && quantity === visibleQuantities.value[0]) return 0;
+  return -1;
+};
+
+// Cell reference management for keyboard navigation
+const setCellRef = (el: Element | ComponentPublicInstance | null, sizeIndex: number, qtyIndex: number) => {
+  if (!cellRefs.value[sizeIndex]) {
+    cellRefs.value[sizeIndex] = [];
+  }
+  cellRefs.value[sizeIndex][qtyIndex] = el as HTMLElement | null;
+};
+
+// Keyboard navigation
+const navigateCell = (newSizeIndex: number, newQtyIndex: number) => {
+  const maxSizeIndex = sizes.length - 1;
+  const maxQtyIndex = visibleQuantities.value.length - 1;
+  
+  // Clamp indices to valid ranges
+  const clampedSizeIndex = Math.max(0, Math.min(newSizeIndex, maxSizeIndex));
+  const clampedQtyIndex = Math.max(0, Math.min(newQtyIndex, maxQtyIndex));
+  
+  // Focus the target cell
+  const targetCell = cellRefs.value[clampedSizeIndex]?.[clampedQtyIndex];
+  if (targetCell) {
+    targetCell.focus();
+  }
 };
 </script>
 

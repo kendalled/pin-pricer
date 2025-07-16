@@ -1,17 +1,24 @@
 <template>
-  <div class="pricing-calculator max-w-6xl mx-auto p-6 space-y-8">
+  <div class="pricing-calculator max-w-6xl mx-auto p-3 xs:p-4 sm:p-6 space-y-6 xs:space-y-8">
     <!-- Header -->
     <div class="text-center">
-      <h1 class="text-3xl font-bold text-slate-50 mb-2">
+      <h1 class="text-2xl xs:text-3xl font-bold text-slate-50 mb-2 high-contrast:text-white leading-tight">
         Lapel Pin & Challenge Coin Calculator
       </h1>
-      <p class="text-slate-400">
+      <p class="text-sm xs:text-base text-slate-400 high-contrast:text-slate-300">
         Get instant pricing for your custom pins and coins
       </p>
     </div>
 
     <!-- Progress Indicator -->
-    <div class="flex items-center justify-center space-x-4 mb-8">
+    <div 
+      class="flex flex-col xs:flex-row items-center justify-center space-y-2 xs:space-y-0 xs:space-x-4 mb-6 xs:mb-8"
+      role="progressbar"
+      aria-label="Calculator progress"
+      :aria-valuenow="getProgressValue()"
+      aria-valuemin="0"
+      aria-valuemax="3"
+    >
       <div class="flex items-center space-x-2">
         <div :class="[
           'w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors',
@@ -417,6 +424,15 @@ const handleErrorRecovery = () => {
     // If recovery fails, at least clear the error display
     clearAllValidationErrors();
   }
+};
+
+// Progress calculation for accessibility
+const getProgressValue = (): number => {
+  let progress = 0;
+  if (state.selectedPlatingType) progress++;
+  if (state.selectedSize && state.selectedQuantity) progress++;
+  if (state.selectedBacking && state.selectedPackaging) progress++;
+  return progress;
 };
 </script>
 

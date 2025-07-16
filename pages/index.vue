@@ -1,16 +1,28 @@
 <template>
   <div class="min-h-screen bg-slate-900">
+    <!-- Skip Link for Screen Readers -->
+    <a 
+      href="#main-content" 
+      class="skip-link"
+      @click="focusMainContent"
+    >
+      Skip to main content
+    </a>
+
     <!-- Main Application Header -->
-    <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-40">
+    <header 
+      class="bg-slate-800 border-b border-slate-700 sticky top-0 z-40 high-contrast:bg-slate-950 high-contrast:border-slate-300"
+      role="banner"
+    >
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-16">
+        <div class="flex items-center justify-between h-16 xs:h-18">
           <div class="flex items-center">
-            <h1 class="text-xl sm:text-2xl font-bold text-slate-50">
+            <h1 class="text-lg xs:text-xl sm:text-2xl font-bold text-slate-50 high-contrast:text-white leading-tight">
               Lapel Pin Price Calculator
             </h1>
           </div>
           <div class="hidden sm:flex items-center space-x-4">
-            <div class="text-sm text-slate-400">
+            <div class="text-sm text-slate-400 high-contrast:text-slate-300">
               Professional Pricing Tool
             </div>
           </div>
@@ -19,17 +31,25 @@
     </header>
 
     <!-- Main Content Area -->
-    <main class="flex-1">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+    <main 
+      id="main-content"
+      class="flex-1"
+      role="main"
+      tabindex="-1"
+    >
+      <div class="max-w-7xl mx-auto px-3 xs:px-4 sm:px-6 lg:px-8 py-4 xs:py-6 sm:py-8">
         <!-- Calculator Component -->
         <PricingCalculator />
       </div>
     </main>
 
     <!-- Footer -->
-    <footer class="bg-slate-800 border-t border-slate-700 mt-16">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div class="text-center text-slate-400 text-sm">
+    <footer 
+      class="bg-slate-800 border-t border-slate-700 mt-8 xs:mt-12 sm:mt-16 high-contrast:bg-slate-950 high-contrast:border-slate-300"
+      role="contentinfo"
+    >
+      <div class="max-w-7xl mx-auto px-3 xs:px-4 sm:px-6 lg:px-8 py-4 xs:py-6">
+        <div class="text-center text-slate-400 text-sm high-contrast:text-slate-300">
           <p>&copy; {{ new Date().getFullYear() }} Lapel Pin Price Calculator</p>
           <p class="mt-1">Get accurate pricing for your custom pins and coins</p>
         </div>
@@ -64,6 +84,14 @@ useSeoMeta({
   ogDescription: 'Get instant quotes with detailed breakdowns for different plating types, sizes, and modifications',
   ogType: 'website'
 });
+
+// Focus management for skip link
+const focusMainContent = () => {
+  const mainContent = document.getElementById('main-content');
+  if (mainContent) {
+    mainContent.focus();
+  }
+};
 </script>
 
 <style scoped>
