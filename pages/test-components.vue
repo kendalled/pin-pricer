@@ -83,10 +83,28 @@
           </div>
         </div>
       </UiCard>
+      
+      <!-- PlatingTypeSelector Tests -->
+      <UiCard>
+        <template #header>
+          <h2 class="text-xl font-semibold">Plating Type Selector Component</h2>
+        </template>
+        
+        <div class="space-y-4">
+          <p class="text-slate-300">Selected: {{ selectedPlatingType?.name || 'None' }}</p>
+          <PlatingTypeSelector 
+            :selected-type="selectedPlatingType"
+            @update:selected-type="selectedPlatingType = $event"
+          />
+        </div>
+      </UiCard>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import type { PlatingType } from '~/types/pricing';
+
 // Test page for UI components
+const selectedPlatingType = ref<PlatingType | null>(null);
 </script>
