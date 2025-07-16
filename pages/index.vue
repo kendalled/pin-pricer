@@ -1,5 +1,122 @@
 <template>
-  <div>
-    <NuxtWelcome />
+  <div class="min-h-screen bg-slate-900">
+    <!-- Main Application Header -->
+    <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-40">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          <div class="flex items-center">
+            <h1 class="text-xl sm:text-2xl font-bold text-slate-50">
+              Lapel Pin & Challenge Coin Calculator
+            </h1>
+          </div>
+          <div class="hidden sm:flex items-center space-x-4">
+            <div class="text-sm text-slate-400">
+              Professional Pricing Tool
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <!-- Calculator Component -->
+        <PricingCalculator />
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-800 border-t border-slate-700 mt-16">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="text-center text-slate-400 text-sm">
+          <p>&copy; {{ new Date().getFullYear() }} Lapel Pin & Challenge Coin Calculator</p>
+          <p class="mt-1">Get accurate pricing for your custom pins and coins</p>
+        </div>
+      </div>
+    </footer>
   </div>
 </template>
+
+<script setup lang="ts">
+import PricingCalculator from '~/components/calculator/PricingCalculator.vue';
+
+// Set page meta for SEO and accessibility
+useHead({
+  title: 'Lapel Pin & Challenge Coin Calculator',
+  meta: [
+    {
+      name: 'description',
+      content: 'Professional pricing calculator for custom lapel pins and challenge coins. Get instant quotes with detailed breakdowns for different plating types, sizes, and modifications.'
+    },
+    {
+      name: 'keywords',
+      content: 'lapel pin calculator, challenge coin pricing, custom pins, pricing tool, quote generator'
+    }
+  ]
+});
+
+// Ensure dark mode theme is applied consistently
+useSeoMeta({
+  title: 'Lapel Pin & Challenge Coin Calculator',
+  ogTitle: 'Lapel Pin & Challenge Coin Calculator',
+  description: 'Professional pricing calculator for custom lapel pins and challenge coins',
+  ogDescription: 'Get instant quotes with detailed breakdowns for different plating types, sizes, and modifications',
+  ogType: 'website'
+});
+</script>
+
+<style scoped>
+/* Ensure consistent dark mode theme across the entire interface */
+.min-h-screen {
+  background-color: #0f172a; /* slate-900 */
+}
+
+/* Smooth transitions for responsive design */
+@media (max-width: 640px) {
+  header h1 {
+    font-size: 1.25rem; /* text-xl */
+    line-height: 1.75rem;
+  }
+}
+
+@media (min-width: 641px) {
+  header h1 {
+    font-size: 1.5rem; /* text-2xl */
+    line-height: 2rem;
+  }
+}
+
+/* Mobile-first responsive adjustments */
+@media (max-width: 768px) {
+  .max-w-7xl {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  main .py-6 {
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+  }
+}
+
+/* Ensure proper contrast and accessibility */
+header {
+  background-color: #1e293b; /* slate-800 */
+  border-bottom: 1px solid #475569; /* slate-600 */
+}
+
+footer {
+  background-color: #1e293b; /* slate-800 */
+  border-top: 1px solid #475569; /* slate-600 */
+}
+
+/* High contrast text for accessibility */
+h1 {
+  color: #f8fafc; /* slate-50 */
+}
+
+.text-slate-400 {
+  color: #94a3b8; /* slate-400 */
+}
+</style>

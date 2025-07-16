@@ -315,11 +315,11 @@ const printQuote = () => {
 <style scoped>
 /* Screen styles */
 .screen-version {
-  @apply block;
+  display: block;
 }
 
 .print-version {
-  @apply hidden;
+  display: none;
 }
 
 /* Tabular numbers for consistent price alignment */
@@ -330,75 +330,104 @@ const printQuote = () => {
 /* Print styles */
 @media print {
   .screen-version {
-    @apply hidden;
+    display: none;
   }
   
   .print-version {
-    @apply block;
+    display: block;
   }
   
   .print-header {
-    @apply text-center mb-8 pb-4 border-b-2 border-gray-300;
+    text-align: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #d1d5db;
   }
   
   .print-header h1 {
-    @apply text-2xl font-bold text-gray-900 mb-2;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #111827;
+    margin-bottom: 0.5rem;
   }
   
   .quote-date {
-    @apply text-gray-600 text-sm;
+    color: #6b7280;
+    font-size: 0.875rem;
   }
   
   .print-content {
-    @apply space-y-6;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
   }
   
   .print-section {
-    @apply mb-6;
+    margin-bottom: 1.5rem;
   }
   
   .print-section h2 {
-    @apply text-lg font-semibold text-gray-900 mb-3 pb-1 border-b border-gray-300;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.25rem;
+    border-bottom: 1px solid #d1d5db;
   }
   
   .print-table {
-    @apply w-full;
+    width: 100%;
   }
   
   .print-table td {
-    @apply py-1 text-gray-800;
+    padding: 0.25rem 0;
+    color: #374151;
   }
   
   .print-table td:first-child {
-    @apply font-medium w-1/3;
+    font-weight: 500;
+    width: 33.333333%;
   }
   
   .print-breakdown-table {
-    @apply w-full border-collapse;
+    width: 100%;
+    border-collapse: collapse;
   }
   
   .print-breakdown-table td {
-    @apply py-2 px-0 text-gray-800 border-b border-gray-200;
+    padding: 0.5rem 0;
+    color: #374151;
+    border-bottom: 1px solid #e5e7eb;
   }
   
   .print-breakdown-table td:first-child {
-    @apply font-medium;
+    font-weight: 500;
   }
   
   .print-breakdown-table .amount {
-    @apply text-right font-mono;
+    text-align: right;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
   }
   
   .total-row td {
-    @apply border-t-2 border-gray-400 pt-3 text-lg;
+    border-top: 2px solid #9ca3af;
+    padding-top: 0.75rem;
+    font-size: 1.125rem;
   }
   
   .per-unit-row td {
-    @apply text-sm text-gray-600 border-b-0;
+    font-size: 0.875rem;
+    color: #6b7280;
+    border-bottom: none;
   }
   
   .print-footer {
-    @apply text-center text-gray-500 text-sm mt-8 pt-4 border-t border-gray-300;
+    text-align: center;
+    color: #6b7280;
+    font-size: 0.875rem;
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid #d1d5db;
   }
   
   /* Ensure proper page breaks */
@@ -408,7 +437,7 @@ const printQuote = () => {
   
   /* Hide any interactive elements in print */
   button {
-    @apply hidden;
+    display: none;
   }
 }
 </style>
