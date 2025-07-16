@@ -1,0 +1,374 @@
+<template>
+  <div class="pricing-calculator max-w-6xl mx-auto p-6 space-y-8">
+    <!-- Header -->
+    <div class="text-center">
+      <h1 class="text-3xl font-bold text-slate-50 mb-2">
+        Lapel Pin & Challenge Coin Calculator
+      </h1>
+      <p class="text-slate-400">
+        Get instant pricing for your custom pins and coins
+      </p>
+    </div>
+
+    <!-- Progress Indicator -->
+    <div class="flex items-center justify-center space-x-4 mb-8">
+      <div class="flex items-center space-x-2">
+        <div :class="[
+          'w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors',
+          state.selectedPlatingType 
+            ? 'bg-blue-600 text-white' 
+            : 'bg-slate-700 text-slate-400'
+        ]">
+          1
+        </div>
+        <span :class="[
+          'text-sm font-medium',
+          state.selectedPlatingType ? 'text-slate-200' : 'text-slate-400'
+        ]">
+          Plating Type
+        </span>
+      </div>
+      
+      <div class="w-8 h-0.5 bg-slate-700"></div>
+      
+      <div class="flex items-center space-x-2">
+        <div :class="[
+          'w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors',
+          (state.selectedSize && state.selectedQuantity)
+            ? 'bg-blue-600 text-white' 
+            : 'bg-slate-700 text-slate-400'
+        ]">
+          2
+        </div>
+        <span :class="[
+          'text-sm font-medium',
+          (state.selectedSize && state.selectedQuantity) ? 'text-slate-200' : 'text-slate-400'
+        ]">
+          Size & Quantity
+        </span>
+      </div>
+      
+      <div class="w-8 h-0.5 bg-slate-700"></div>
+      
+      <div class="flex items-center space-x-2">
+        <div :class="[
+          'w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors',
+          (state.selectedBacking && state.selectedPackaging)
+            ? 'bg-blue-600 text-white' 
+            : 'bg-slate-700 text-slate-400'
+        ]">
+          3
+        </div>
+        <span :class="[
+          'text-sm font-medium',
+          (state.selectedBacking && state.selectedPackaging) ? 'text-slate-200' : 'text-slate-400'
+        ]">
+          Modifications
+        </span>
+      </div>
+    </div>
+
+    <!-- Validation Errors -->
+    <div v-if="validationErrors.general && validationErrors.general.length > 0" 
+         class="bg-red-900/20 border border-red-700/30 rounded-lg p-4">
+      <div class="flex items-center space-x-2 mb-2">
+        <svg class="w-5 h-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+        </svg>
+        <h3 class="text-red-200 font-medium">Validation Errors</h3>
+      </div>
+      <ul class="text-red-300 text-sm space-y-1">
+        <li v-for="error in validationErrors.general" :key="error">• {{ error }}</li>
+      </ul>
+    </div>
+
+    <!-- Step 1: Plating Type Selection -->
+    <Card>
+      <template #header>
+        <div class="flex items-center justify-between">
+          <h2 class="text-xl font-semibold text-slate-50">
+            Step 1: Choose Plating Type
+          </h2>
+          <Badge v-if="validationErrors.platingType" variant="error" size="sm">
+            Required
+          </Badge>
+        </div>
+      </template>
+      
+      <PlatingTypeSelector
+        :selected-type="state.selectedPlatingType"
+        @update:selected-type="handlePlatingTypeChange"
+      />
+      
+      <div v-if="validationErrors.platingType" class="mt-3 text-red-400 text-sm">
+        {{ validationErrors.platingType }}
+      </div>
+    </Card>
+
+    <!-- Step 2: Size and Quantity Selection -->
+    <Card v-if="state.selectedPlatingType">
+      <template #header>
+        <div class="flex items-center justify-between">
+          <h2 class="text-xl font-semibold text-slate-50">
+            Step 2: Select Size & Quantity
+          </h2>
+          <div class="flex gap-2">
+            <Badge v-if="validationErrors.size" variant="error" size="sm">
+              Size Required
+            </Badge>
+            <Badge v-if="validationErrors.quantity" variant="error" size="sm">
+              Quantity Required
+            </Badge>
+          </div>
+        </div>
+      </template>
+      
+      <PricingTable
+        :plating-type="state.selectedPlatingType"
+        :selected-size="state.selectedSize"
+        :selected-quantity="state.selectedQuantity"
+        @selection-change="handleSizeQuantityChange"
+      />
+      
+      <div v-if="validationErrors.size || validationErrors.quantity" class="mt-3 text-red-400 text-sm">
+        <div v-if="validationErrors.size">{{ validationErrors.size }}</div>
+        <div v-if="validationErrors.quantity">{{ validationErrors.quantity }}</div>
+      </div>
+    </Card>
+
+    <!-- Step 3: Modifications -->
+    <Card v-if="state.selectedSize && state.selectedQuantity">
+      <template #header>
+        <div class="flex items-center justify-between">
+          <h2 class="text-xl font-semibold text-slate-50">
+            Step 3: Choose Modifications
+          </h2>
+          <div class="flex gap-2">
+            <Badge v-if="validationErrors.backing" variant="error" size="sm">
+              Backing Required
+            </Badge>
+            <Badge v-if="validationErrors.packaging" variant="error" size="sm">
+              Packaging Required
+            </Badge>
+          </div>
+        </div>
+      </template>
+      
+      <ModificationsPanel
+        :selected-backing="state.selectedBacking"
+        :selected-packaging="state.selectedPackaging"
+        :rush-order="state.rushOrder"
+        @backing-change="handleBackingChange"
+        @packaging-change="handlePackagingChange"
+        @rush-toggle="handleRushToggle"
+      />
+      
+      <div v-if="validationErrors.backing || validationErrors.packaging" class="mt-3 text-red-400 text-sm">
+        <div v-if="validationErrors.backing">{{ validationErrors.backing }}</div>
+        <div v-if="validationErrors.packaging">{{ validationErrors.packaging }}</div>
+      </div>
+    </Card>
+
+    <!-- Price Summary (Always Visible) -->
+    <div class="grid lg:grid-cols-2 gap-6">
+      <!-- Calculation Summary -->
+      <CalculationSummary
+        :breakdown="priceBreakdown"
+        :is-complete="isSelectionComplete"
+      />
+      
+      <!-- Action Buttons -->
+      <Card>
+        <template #header>
+          <h3 class="text-lg font-semibold text-slate-50">Actions</h3>
+        </template>
+        
+        <div class="space-y-4">
+          <!-- Generate Quote Button -->
+          <Button
+            :disabled="!isSelectionComplete || isCalculating"
+            variant="primary"
+            size="lg"
+            class="w-full"
+            @click="showQuote = true"
+          >
+            <template v-if="isCalculating">
+              <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Calculating...
+            </template>
+            <template v-else>
+              Generate Quote
+            </template>
+          </Button>
+          
+          <!-- Reset Button -->
+          <Button
+            variant="secondary"
+            size="md"
+            class="w-full"
+            @click="handleReset"
+          >
+            Reset Calculator
+          </Button>
+          
+          <!-- Validation Status -->
+          <div class="text-sm text-slate-400">
+            <div v-if="!validationStatus.isComplete" class="space-y-1">
+              <div class="font-medium text-slate-300">Complete these steps:</div>
+              <ul class="space-y-1 ml-4">
+                <li v-if="!state.selectedPlatingType" class="flex items-center space-x-2">
+                  <div class="w-2 h-2 bg-slate-500 rounded-full"></div>
+                  <span>Select plating type</span>
+                </li>
+                <li v-if="!state.selectedSize || !state.selectedQuantity" class="flex items-center space-x-2">
+                  <div class="w-2 h-2 bg-slate-500 rounded-full"></div>
+                  <span>Choose size and quantity</span>
+                </li>
+                <li v-if="!state.selectedBacking" class="flex items-center space-x-2">
+                  <div class="w-2 h-2 bg-slate-500 rounded-full"></div>
+                  <span>Select backing option</span>
+                </li>
+                <li v-if="!state.selectedPackaging" class="flex items-center space-x-2">
+                  <div class="w-2 h-2 bg-slate-500 rounded-full"></div>
+                  <span>Choose packaging option</span>
+                </li>
+              </ul>
+            </div>
+            <div v-else class="flex items-center space-x-2 text-green-400">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+              </svg>
+              <span>Ready to generate quote</span>
+            </div>
+          </div>
+        </div>
+      </Card>
+    </div>
+
+    <!-- Quote Display Modal/Overlay -->
+    <div v-if="showQuote && isSelectionComplete && priceBreakdown" 
+         class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50"
+         @click.self="showQuote = false">
+      <div class="bg-slate-900 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="sticky top-0 bg-slate-900 border-b border-slate-700 p-4 flex items-center justify-between">
+          <h2 class="text-xl font-semibold text-slate-50">Quote Details</h2>
+          <Button variant="ghost" size="sm" @click="showQuote = false">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </Button>
+        </div>
+        <div class="p-6">
+          <QuoteDisplay
+            :selections="currentSelections as OrderSelections"
+            :breakdown="priceBreakdown"
+            @edit="showQuote = false"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue';
+import type { PlatingType, BackingOption, PackagingOption, OrderSelections } from '~/types/pricing';
+import { usePricingCalculator } from '~/composables/usePricingCalculator';
+import PlatingTypeSelector from '~/components/PlatingTypeSelector.vue';
+import PricingTable from '~/components/calculator/PricingTable.vue';
+import ModificationsPanel from '~/components/calculator/ModificationsPanel.vue';
+import CalculationSummary from '~/components/calculator/CalculationSummary.vue';
+import QuoteDisplay from '~/components/calculator/QuoteDisplay.vue';
+import Card from '~/components/ui/Card.vue';
+import Button from '~/components/ui/Button.vue';
+import Badge from '~/components/ui/Badge.vue';
+
+// Use the pricing calculator composable
+const {
+  state,
+  validationErrors,
+  isCalculating,
+  isSelectionComplete,
+  currentSelections,
+  priceBreakdown,
+  validationStatus,
+  setPlatingType,
+  setSizeAndQuantity,
+  setBacking,
+  setPackaging,
+  setRushOrder,
+  resetSelections,
+  setValidationError
+} = usePricingCalculator();
+
+// Local state for UI
+const showQuote = ref(false);
+
+// Event handlers
+const handlePlatingTypeChange = (platingType: PlatingType) => {
+  setPlatingType(platingType);
+};
+
+const handleSizeQuantityChange = (size: string, quantity: number) => {
+  setSizeAndQuantity(size, quantity);
+};
+
+const handleBackingChange = (backing: BackingOption) => {
+  setBacking(backing);
+};
+
+const handlePackagingChange = (packaging: PackagingOption) => {
+  setPackaging(packaging);
+};
+
+const handleRushToggle = (enabled: boolean) => {
+  setRushOrder(enabled);
+};
+
+const handleReset = () => {
+  showQuote.value = false;
+  resetSelections();
+};
+</script>
+
+<style scoped>
+/* Smooth transitions for all interactive elements */
+.pricing-calculator * {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Custom scrollbar for quote modal */
+.max-h-\[90vh\]::-webkit-scrollbar {
+  width: 8px;
+}
+
+.max-h-\[90vh\]::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
+.max-h-\[90vh\]::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 4px;
+}
+
+.max-h-\[90vh\]::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/* Loading spinner animation */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+</style>
