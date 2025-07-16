@@ -98,6 +98,33 @@
           />
         </div>
       </UiCard>
+      
+      <!-- PricingTable Tests -->
+      <UiCard>
+        <template #header>
+          <h2 class="text-xl font-semibold">Pricing Table Component</h2>
+        </template>
+        
+        <div class="space-y-4">
+          <div v-if="selectedPlatingType">
+            <p class="text-slate-300 mb-4">
+              Showing pricing for: {{ selectedPlatingType.name }}
+              <span v-if="selectedSize && selectedQuantity" class="ml-4">
+                | Selected: {{ selectedSize }}" × {{ selectedQuantity }}
+              </span>
+            </p>
+            <CalculatorPricingTable
+              :plating-type="selectedPlatingType"
+              :selected-size="selectedSize"
+              :selected-quantity="selectedQuantity"
+              @selection-change="handlePricingSelection"
+            />
+          </div>
+          <div v-else class="text-slate-400 italic">
+            Please select a plating type above to see the pricing table.
+          </div>
+        </div>
+      </UiCard>
     </div>
   </div>
 </template>
@@ -107,4 +134,11 @@ import type { PlatingType } from '~/types/pricing';
 
 // Test page for UI components
 const selectedPlatingType = ref<PlatingType | null>(null);
+const selectedSize = ref<string | null>(null);
+const selectedQuantity = ref<number | null>(null);
+
+const handlePricingSelection = (size: string, quantity: number) => {
+  selectedSize.value = size;
+  selectedQuantity.value = quantity;
+};
 </script>
