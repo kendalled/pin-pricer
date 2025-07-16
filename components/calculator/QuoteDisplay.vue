@@ -7,7 +7,7 @@
           <div class="flex items-center justify-between">
             <div>
               <h2 class="text-2xl font-semibold text-slate-50">Quote Summary</h2>
-              <p class="text-slate-400 mt-1">Lapel Pin & Challenge Coin Calculator</p>
+              <p class="text-slate-400 mt-1">Lapel Pin Price Calculator</p>
             </div>
             <div class="flex gap-2">
               <Button variant="secondary" size="sm" @click="printQuote">
@@ -179,7 +179,7 @@
     <!-- Print Version -->
     <div class="print-version">
       <div class="print-header">
-        <h1>Lapel Pin & Challenge Coin Quote</h1>
+        <h1>Lapel Pin Price Quote</h1>
         <div class="quote-date">{{ formatDate(new Date()) }}</div>
       </div>
 

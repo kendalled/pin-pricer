@@ -105,7 +105,17 @@ const baseTotal = computed(() => {
 
 // Methods
 const getPrice = (size: string, quantity: number): number => {
-  return props.platingType.pricing[size]?.[quantity] || 0;
+  try {
+    const price = props.platingType.pricing[size]?.[quantity];
+    if (price === undefined || price < 0) {
+      console.warn(`Invalid price for size ${size} and quantity ${quantity}`);
+      return 0;
+    }
+    return price;
+  } catch (error) {
+    console.error('Error getting price:', error);
+    return 0;
+  }
 };
 
 const formatPrice = (price: number): string => {
@@ -113,7 +123,24 @@ const formatPrice = (price: number): string => {
 };
 
 const selectCell = (size: string, quantity: number) => {
-  emit('selection-change', size, quantity);
+  try {
+    // Validate the selection
+    if (!size || !quantity || quantity <= 0) {
+      console.error('Invalid size or quantity selection:', { size, quantity });
+      return;
+    }
+    
+    // Check if the price exists for this combination
+    const price = getPrice(size, quantity);
+    if (price <= 0) {
+      console.error('No valid price found for selection:', { size, quantity });
+      return;
+    }
+    
+    emit('selection-change', size, quantity);
+  } catch (error) {
+    console.error('Error selecting cell:', error);
+  }
 };
 
 const getCellClasses = (size: string, quantity: number): string => {

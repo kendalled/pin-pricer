@@ -175,19 +175,49 @@ const backingOptions = BACKING_OPTIONS;
 const packagingOptions = PACKAGING_OPTIONS;
 
 const selectBacking = (option: BackingOption) => {
-  emit('backing-change', option);
+  try {
+    if (!option || !option.id || !option.name || typeof option.price !== 'number') {
+      console.error('Invalid backing option:', option);
+      return;
+    }
+    emit('backing-change', option);
+  } catch (error) {
+    console.error('Error selecting backing option:', error);
+  }
 };
 
 const selectPackaging = (option: PackagingOption) => {
-  emit('packaging-change', option);
+  try {
+    if (!option || !option.id || !option.name || typeof option.price !== 'number') {
+      console.error('Invalid packaging option:', option);
+      return;
+    }
+    emit('packaging-change', option);
+  } catch (error) {
+    console.error('Error selecting packaging option:', error);
+  }
 };
 
 const toggleRushOrder = (event: Event) => {
-  const target = event.target as HTMLInputElement;
-  emit('rush-toggle', target.checked);
+  try {
+    const target = event.target as HTMLInputElement;
+    if (target && typeof target.checked === 'boolean') {
+      emit('rush-toggle', target.checked);
+    }
+  } catch (error) {
+    console.error('Error toggling rush order:', error);
+  }
 };
 
 const formatPrice = (price: number): string => {
-  return `$${price.toFixed(2)}`;
+  try {
+    if (typeof price !== 'number' || isNaN(price) || price < 0) {
+      return '$0.00';
+    }
+    return `$${price.toFixed(2)}`;
+  } catch (error) {
+    console.error('Error formatting price:', error);
+    return '$0.00';
+  }
 };
 </script>

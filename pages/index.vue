@@ -6,7 +6,7 @@
         <div class="flex items-center justify-between h-16">
           <div class="flex items-center">
             <h1 class="text-xl sm:text-2xl font-bold text-slate-50">
-              Lapel Pin & Challenge Coin Calculator
+              Lapel Pin Price Calculator
             </h1>
           </div>
           <div class="hidden sm:flex items-center space-x-4">
@@ -30,7 +30,7 @@
     <footer class="bg-slate-800 border-t border-slate-700 mt-16">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div class="text-center text-slate-400 text-sm">
-          <p>&copy; {{ new Date().getFullYear() }} Lapel Pin & Challenge Coin Calculator</p>
+          <p>&copy; {{ new Date().getFullYear() }} Lapel Pin Price Calculator</p>
           <p class="mt-1">Get accurate pricing for your custom pins and coins</p>
         </div>
       </div>
@@ -43,7 +43,7 @@ import PricingCalculator from '~/components/calculator/PricingCalculator.vue';
 
 // Set page meta for SEO and accessibility
 useHead({
-  title: 'Lapel Pin & Challenge Coin Calculator',
+  title: 'Lapel Pin Price Calculator',
   meta: [
     {
       name: 'description',
@@ -58,8 +58,8 @@ useHead({
 
 // Ensure dark mode theme is applied consistently
 useSeoMeta({
-  title: 'Lapel Pin & Challenge Coin Calculator',
-  ogTitle: 'Lapel Pin & Challenge Coin Calculator',
+  title: 'Lapel Pin Price Calculator',
+  ogTitle: 'Lapel Pin Price Calculator',
   description: 'Professional pricing calculator for custom lapel pins and challenge coins',
   ogDescription: 'Get instant quotes with detailed breakdowns for different plating types, sizes, and modifications',
   ogType: 'website'

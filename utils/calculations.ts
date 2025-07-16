@@ -8,11 +8,33 @@ export function calculateBasePrice(
   size: string,
   quantity: number
 ): number {
-  const unitPrice = platingType.pricing[size]?.[quantity];
-  if (unitPrice === undefined) {
-    throw new Error(`Invalid size "${size}" or quantity "${quantity}" for plating type "${platingType.name}"`);
+  try {
+    // Validate inputs
+    if (!platingType || !platingType.pricing) {
+      throw new Error('Invalid plating type provided');
+    }
+    if (!size || typeof size !== 'string') {
+      throw new Error('Invalid size provided');
+    }
+    if (!quantity || typeof quantity !== 'number' || quantity <= 0) {
+      throw new Error('Invalid quantity provided');
+    }
+
+    const unitPrice = platingType.pricing[size]?.[quantity];
+    if (unitPrice === undefined || typeof unitPrice !== 'number' || unitPrice <= 0) {
+      throw new Error(`Invalid size "${size}" or quantity "${quantity}" for plating type "${platingType.name}"`);
+    }
+    
+    const basePrice = unitPrice * quantity;
+    if (isNaN(basePrice) || !isFinite(basePrice) || basePrice < 0) {
+      throw new Error('Calculated base price is invalid');
+    }
+    
+    return basePrice;
+  } catch (error) {
+    console.error('Error calculating base price:', error);
+    throw error; // Re-throw to be handled by calling function
   }
-  return unitPrice * quantity;
 }
 
 /**
@@ -23,18 +45,50 @@ export function getUnitPrice(
   size: string,
   quantity: number
 ): number {
-  const unitPrice = platingType.pricing[size]?.[quantity];
-  if (unitPrice === undefined) {
-    throw new Error(`Invalid size "${size}" or quantity "${quantity}" for plating type "${platingType.name}"`);
+  try {
+    // Validate inputs
+    if (!platingType || !platingType.pricing) {
+      throw new Error('Invalid plating type provided');
+    }
+    if (!size || typeof size !== 'string') {
+      throw new Error('Invalid size provided');
+    }
+    if (!quantity || typeof quantity !== 'number' || quantity <= 0) {
+      throw new Error('Invalid quantity provided');
+    }
+
+    const unitPrice = platingType.pricing[size]?.[quantity];
+    if (unitPrice === undefined || typeof unitPrice !== 'number' || unitPrice <= 0) {
+      throw new Error(`Invalid size "${size}" or quantity "${quantity}" for plating type "${platingType.name}"`);
+    }
+    return unitPrice;
+  } catch (error) {
+    console.error('Error getting unit price:', error);
+    throw error; // Re-throw to be handled by calling function
   }
-  return unitPrice;
 }
 
 /**
  * Calculate the setup fee for a plating type
  */
 export function calculateSetupFee(platingType: PlatingType): number {
-  return platingType.setupFee || 0;
+  try {
+    if (!platingType) {
+      console.warn('No plating type provided for setup fee calculation');
+      return 0;
+    }
+    
+    const setupFee = platingType.setupFee || 0;
+    if (typeof setupFee !== 'number' || isNaN(setupFee) || setupFee < 0) {
+      console.warn('Invalid setup fee value:', setupFee);
+      return 0;
+    }
+    
+    return setupFee;
+  } catch (error) {
+    console.error('Error calculating setup fee:', error);
+    return 0;
+  }
 }
 
 /**
@@ -44,7 +98,33 @@ export function calculateBackingCost(
   backing: BackingOption,
   quantity: number
 ): number {
-  return backing.price * quantity;
+  try {
+    if (!backing) {
+      console.warn('No backing option provided');
+      return 0;
+    }
+    
+    if (typeof backing.price !== 'number' || isNaN(backing.price) || backing.price < 0) {
+      console.warn('Invalid backing price:', backing.price);
+      return 0;
+    }
+    
+    if (typeof quantity !== 'number' || isNaN(quantity) || quantity <= 0) {
+      console.warn('Invalid quantity for backing cost:', quantity);
+      return 0;
+    }
+    
+    const cost = backing.price * quantity;
+    if (isNaN(cost) || !isFinite(cost) || cost < 0) {
+      console.warn('Invalid calculated backing cost:', cost);
+      return 0;
+    }
+    
+    return cost;
+  } catch (error) {
+    console.error('Error calculating backing cost:', error);
+    return 0;
+  }
 }
 
 /**
@@ -54,7 +134,33 @@ export function calculatePackagingCost(
   packaging: PackagingOption,
   quantity: number
 ): number {
-  return packaging.price * quantity;
+  try {
+    if (!packaging) {
+      console.warn('No packaging option provided');
+      return 0;
+    }
+    
+    if (typeof packaging.price !== 'number' || isNaN(packaging.price) || packaging.price < 0) {
+      console.warn('Invalid packaging price:', packaging.price);
+      return 0;
+    }
+    
+    if (typeof quantity !== 'number' || isNaN(quantity) || quantity <= 0) {
+      console.warn('Invalid quantity for packaging cost:', quantity);
+      return 0;
+    }
+    
+    const cost = packaging.price * quantity;
+    if (isNaN(cost) || !isFinite(cost) || cost < 0) {
+      console.warn('Invalid calculated packaging cost:', cost);
+      return 0;
+    }
+    
+    return cost;
+  } catch (error) {
+    console.error('Error calculating packaging cost:', error);
+    return 0;
+  }
 }
 
 /**
@@ -66,64 +172,148 @@ export function calculateRushFee(
   backingCost: number,
   packagingCost: number
 ): number {
-  const subtotal = basePrice + setupFee + backingCost + packagingCost;
-  return subtotal * 0.20;
+  try {
+    // Validate all input values
+    const values = [basePrice, setupFee, backingCost, packagingCost];
+    for (const value of values) {
+      if (typeof value !== 'number' || isNaN(value) || !isFinite(value) || value < 0) {
+        console.warn('Invalid value for rush fee calculation:', value);
+        return 0;
+      }
+    }
+    
+    const subtotal = basePrice + setupFee + backingCost + packagingCost;
+    if (isNaN(subtotal) || !isFinite(subtotal) || subtotal < 0) {
+      console.warn('Invalid subtotal for rush fee calculation:', subtotal);
+      return 0;
+    }
+    
+    const rushFee = subtotal * 0.20;
+    if (isNaN(rushFee) || !isFinite(rushFee) || rushFee < 0) {
+      console.warn('Invalid calculated rush fee:', rushFee);
+      return 0;
+    }
+    
+    return rushFee;
+  } catch (error) {
+    console.error('Error calculating rush fee:', error);
+    return 0;
+  }
 }
 
 /**
  * Calculate the complete price breakdown for an order
  */
 export function calculatePriceBreakdown(selections: OrderSelections): PriceBreakdown {
-  const basePrice = calculateBasePrice(
-    selections.platingType,
-    selections.size,
-    selections.quantity
-  );
-  
-  const unitPrice = getUnitPrice(
-    selections.platingType,
-    selections.size,
-    selections.quantity
-  );
-  
-  const setupFee = calculateSetupFee(selections.platingType);
-  const backingCost = calculateBackingCost(selections.backing, selections.quantity);
-  const packagingCost = calculatePackagingCost(selections.packaging, selections.quantity);
-  
-  const rushFee = selections.rushOrder 
-    ? calculateRushFee(basePrice, setupFee, backingCost, packagingCost)
-    : 0;
-  
-  const total = basePrice + setupFee + backingCost + packagingCost + rushFee;
-  
-  return {
-    basePrice,
-    setupFee,
-    backingCost,
-    packagingCost,
-    rushFee,
-    total,
-    unitPrice
-  };
+  try {
+    // Validate input selections
+    if (!selections) {
+      throw new Error('Order selections are required');
+    }
+
+    const basePrice = calculateBasePrice(
+      selections.platingType,
+      selections.size,
+      selections.quantity
+    );
+    
+    const unitPrice = getUnitPrice(
+      selections.platingType,
+      selections.size,
+      selections.quantity
+    );
+    
+    const setupFee = calculateSetupFee(selections.platingType);
+    const backingCost = calculateBackingCost(selections.backing, selections.quantity);
+    const packagingCost = calculatePackagingCost(selections.packaging, selections.quantity);
+    
+    const rushFee = selections.rushOrder 
+      ? calculateRushFee(basePrice, setupFee, backingCost, packagingCost)
+      : 0;
+    
+    const total = basePrice + setupFee + backingCost + packagingCost + rushFee;
+    
+    // Validate all calculated values
+    const values = [basePrice, unitPrice, setupFee, backingCost, packagingCost, rushFee, total];
+    for (const value of values) {
+      if (typeof value !== 'number' || isNaN(value) || !isFinite(value) || value < 0) {
+        throw new Error(`Invalid calculated value: ${value}`);
+      }
+    }
+    
+    return {
+      basePrice,
+      setupFee,
+      backingCost,
+      packagingCost,
+      rushFee,
+      total,
+      unitPrice
+    };
+  } catch (error) {
+    console.error('Error calculating price breakdown:', error);
+    // Return safe fallback values
+    return {
+      basePrice: 0,
+      setupFee: 0,
+      backingCost: 0,
+      packagingCost: 0,
+      rushFee: 0,
+      total: 0,
+      unitPrice: 0
+    };
+  }
 }
 
 /**
  * Format a number as currency with two decimal places
  */
 export function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  }).format(amount);
+  try {
+    // Validate input
+    if (typeof amount !== 'number' || isNaN(amount) || !isFinite(amount)) {
+      console.warn('Invalid amount for currency formatting:', amount);
+      return '$0.00';
+    }
+    
+    // Handle negative values
+    if (amount < 0) {
+      console.warn('Negative amount for currency formatting:', amount);
+      return '$0.00';
+    }
+    
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(amount);
+  } catch (error) {
+    console.error('Error formatting currency:', error);
+    return '$0.00';
+  }
 }
 
 /**
  * Format a number as currency without the dollar sign
  */
 export function formatPrice(amount: number): string {
-  return amount.toFixed(2);
+  try {
+    if (typeof amount !== 'number' || isNaN(amount) || !isFinite(amount)) {
+      console.warn('Invalid amount for price formatting:', amount);
+      return '0.00';
+    }
+    
+    if (amount < 0) {
+      console.warn('Negative amount for price formatting:', amount);
+      return '0.00';
+    }
+    
+    return amount.toFixed(2);
+  } catch (error) {
+    console.error('Error formatting price:', error);
+    return '0.00';
+  }
 }
 
 /**

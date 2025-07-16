@@ -75,11 +75,77 @@
         <svg class="w-5 h-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
           <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
         </svg>
-        <h3 class="text-red-200 font-medium">Validation Errors</h3>
+        <h3 class="text-red-200 font-medium">System Errors</h3>
       </div>
       <ul class="text-red-300 text-sm space-y-1">
         <li v-for="error in validationErrors.general" :key="error">• {{ error }}</li>
       </ul>
+      <div class="mt-3 pt-3 border-t border-red-700/30">
+        <Button 
+          variant="secondary" 
+          size="sm" 
+          @click="handleErrorRecovery"
+          class="bg-red-800 hover:bg-red-700 border-red-600"
+        >
+          Try to Recover
+        </Button>
+      </div>
+    </div>
+
+    <!-- Validation Status Summary -->
+    <div v-if="!validationStatus.isComplete && !validationErrors.general?.length" 
+         class="bg-blue-900/20 border border-blue-700/30 rounded-lg p-4">
+      <div class="flex items-center space-x-2 mb-3">
+        <svg class="w-5 h-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+        </svg>
+        <h3 class="text-blue-200 font-medium">Complete Your Selection</h3>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+        <div :class="[
+          'flex items-center space-x-2 p-2 rounded',
+          state.selectedPlatingType ? 'text-green-300 bg-green-900/20' : 'text-blue-300 bg-blue-900/20'
+        ]">
+          <svg v-if="state.selectedPlatingType" class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+          </svg>
+          <div v-else class="w-4 h-4 border-2 border-blue-400 rounded-full"></div>
+          <span>Plating Type</span>
+        </div>
+        
+        <div :class="[
+          'flex items-center space-x-2 p-2 rounded',
+          (state.selectedSize && state.selectedQuantity) ? 'text-green-300 bg-green-900/20' : 'text-blue-300 bg-blue-900/20'
+        ]">
+          <svg v-if="state.selectedSize && state.selectedQuantity" class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+          </svg>
+          <div v-else class="w-4 h-4 border-2 border-blue-400 rounded-full"></div>
+          <span>Size & Quantity</span>
+        </div>
+        
+        <div :class="[
+          'flex items-center space-x-2 p-2 rounded',
+          state.selectedBacking ? 'text-green-300 bg-green-900/20' : 'text-blue-300 bg-blue-900/20'
+        ]">
+          <svg v-if="state.selectedBacking" class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+          </svg>
+          <div v-else class="w-4 h-4 border-2 border-blue-400 rounded-full"></div>
+          <span>Backing Option</span>
+        </div>
+        
+        <div :class="[
+          'flex items-center space-x-2 p-2 rounded',
+          state.selectedPackaging ? 'text-green-300 bg-green-900/20' : 'text-blue-300 bg-blue-900/20'
+        ]">
+          <svg v-if="state.selectedPackaging" class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+          </svg>
+          <div v-else class="w-4 h-4 border-2 border-blue-400 rounded-full"></div>
+          <span>Packaging Option</span>
+        </div>
+      </div>
     </div>
 
     <!-- Step 1: Plating Type Selection -->
@@ -301,7 +367,8 @@ const {
   setPackaging,
   setRushOrder,
   resetSelections,
-  setValidationError
+  setValidationError,
+  clearAllValidationErrors
 } = usePricingCalculator();
 
 // Local state for UI
@@ -331,6 +398,25 @@ const handleRushToggle = (enabled: boolean) => {
 const handleReset = () => {
   showQuote.value = false;
   resetSelections();
+};
+
+const handleErrorRecovery = () => {
+  try {
+    // Clear all validation errors
+    clearAllValidationErrors();
+    
+    // Reset to a clean state
+    resetSelections();
+    
+    // Force a re-render by toggling the quote display
+    showQuote.value = false;
+    
+    console.log('Error recovery attempted - calculator reset to clean state');
+  } catch (error) {
+    console.error('Error during recovery attempt:', error);
+    // If recovery fails, at least clear the error display
+    clearAllValidationErrors();
+  }
 };
 </script>
 

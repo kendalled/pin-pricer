@@ -87,6 +87,26 @@ describe('calculateBasePrice', () => {
       calculateBasePrice(mockPlatingType, '1.00', 150);
     }).toThrow('Invalid size "1.00" or quantity "150" for plating type "Test Plating"');
   });
+
+  it('should throw error for invalid plating type', () => {
+    expect(() => {
+      calculateBasePrice(null as any, '1.00', 100);
+    }).toThrow('Invalid plating type provided');
+  });
+
+  it('should throw error for invalid inputs', () => {
+    expect(() => {
+      calculateBasePrice(mockPlatingType, '', 100);
+    }).toThrow('Invalid size provided');
+    
+    expect(() => {
+      calculateBasePrice(mockPlatingType, '1.00', 0);
+    }).toThrow('Invalid quantity provided');
+    
+    expect(() => {
+      calculateBasePrice(mockPlatingType, '1.00', -100);
+    }).toThrow('Invalid quantity provided');
+  });
 });
 
 describe('getUnitPrice', () => {
@@ -112,6 +132,19 @@ describe('calculateSetupFee', () => {
     const result = calculateSetupFee(mockPlatingType);
     expect(result).toBe(0);
   });
+
+  it('should handle invalid plating type gracefully', () => {
+    expect(calculateSetupFee(null as any)).toBe(0);
+    expect(calculateSetupFee(undefined as any)).toBe(0);
+  });
+
+  it('should handle invalid setup fee values', () => {
+    const invalidSetupFee = { ...mockPlatingType, setupFee: -100 };
+    expect(calculateSetupFee(invalidSetupFee)).toBe(0);
+    
+    const nanSetupFee = { ...mockPlatingType, setupFee: NaN };
+    expect(calculateSetupFee(nanSetupFee)).toBe(0);
+  });
 });
 
 describe('calculateBackingCost', () => {
@@ -129,6 +162,25 @@ describe('calculateBackingCost', () => {
     const result = calculateBackingCost(mockBackingPaid, 500);
     expect(result).toBe(175); // 0.35 * 500
   });
+
+  it('should handle invalid backing option gracefully', () => {
+    expect(calculateBackingCost(null as any, 100)).toBe(0);
+    expect(calculateBackingCost(undefined as any, 100)).toBe(0);
+  });
+
+  it('should handle invalid backing price gracefully', () => {
+    const invalidBacking = { ...mockBackingPaid, price: -1 };
+    expect(calculateBackingCost(invalidBacking, 100)).toBe(0);
+    
+    const nanBacking = { ...mockBackingPaid, price: NaN };
+    expect(calculateBackingCost(nanBacking, 100)).toBe(0);
+  });
+
+  it('should handle invalid quantity gracefully', () => {
+    expect(calculateBackingCost(mockBackingPaid, 0)).toBe(0);
+    expect(calculateBackingCost(mockBackingPaid, -100)).toBe(0);
+    expect(calculateBackingCost(mockBackingPaid, NaN)).toBe(0);
+  });
 });
 
 describe('calculatePackagingCost', () => {
@@ -140,6 +192,25 @@ describe('calculatePackagingCost', () => {
   it('should return 0 for free packaging option', () => {
     const result = calculatePackagingCost(mockPackagingFree, 100);
     expect(result).toBe(0);
+  });
+
+  it('should handle invalid packaging option gracefully', () => {
+    expect(calculatePackagingCost(null as any, 100)).toBe(0);
+    expect(calculatePackagingCost(undefined as any, 100)).toBe(0);
+  });
+
+  it('should handle invalid packaging price gracefully', () => {
+    const invalidPackaging = { ...mockPackagingPaid, price: -1 };
+    expect(calculatePackagingCost(invalidPackaging, 100)).toBe(0);
+    
+    const nanPackaging = { ...mockPackagingPaid, price: NaN };
+    expect(calculatePackagingCost(nanPackaging, 100)).toBe(0);
+  });
+
+  it('should handle invalid quantity gracefully', () => {
+    expect(calculatePackagingCost(mockPackagingPaid, 0)).toBe(0);
+    expect(calculatePackagingCost(mockPackagingPaid, -100)).toBe(0);
+    expect(calculatePackagingCost(mockPackagingPaid, NaN)).toBe(0);
   });
 });
 
@@ -156,6 +227,18 @@ describe('calculateRushFee', () => {
   it('should handle zero values', () => {
     const result = calculateRushFee(100, 0, 0, 0);
     expect(result).toBe(20); // 100 * 0.20
+  });
+
+  it('should handle invalid inputs gracefully', () => {
+    expect(calculateRushFee(NaN, 0, 0, 0)).toBe(0);
+    expect(calculateRushFee(100, -50, 0, 0)).toBe(0);
+    expect(calculateRushFee(100, 0, Infinity, 0)).toBe(0);
+    expect(calculateRushFee(100, 0, 0, null as any)).toBe(0);
+  });
+
+  it('should handle all invalid inputs', () => {
+    expect(calculateRushFee(-100, -50, -25, -10)).toBe(0);
+    expect(calculateRushFee(NaN, NaN, NaN, NaN)).toBe(0);
   });
 });
 
@@ -218,6 +301,16 @@ describe('formatCurrency', () => {
     expect(formatCurrency(123.456)).toBe('$123.46'); // Rounds to 2 decimals
     expect(formatCurrency(123.1)).toBe('$123.10'); // Pads to 2 decimals
   });
+
+  it('should handle invalid inputs gracefully', () => {
+    expect(formatCurrency(NaN)).toBe('$0.00');
+    expect(formatCurrency(Infinity)).toBe('$0.00');
+    expect(formatCurrency(-Infinity)).toBe('$0.00');
+    expect(formatCurrency(-123.45)).toBe('$0.00');
+    expect(formatCurrency(null as any)).toBe('$0.00');
+    expect(formatCurrency(undefined as any)).toBe('$0.00');
+    expect(formatCurrency('invalid' as any)).toBe('$0.00');
+  });
 });
 
 describe('formatPrice', () => {
@@ -229,6 +322,16 @@ describe('formatPrice', () => {
 
   it('should handle rounding', () => {
     expect(formatPrice(123.456)).toBe('123.46');
+  });
+
+  it('should handle invalid inputs gracefully', () => {
+    expect(formatPrice(NaN)).toBe('0.00');
+    expect(formatPrice(Infinity)).toBe('0.00');
+    expect(formatPrice(-Infinity)).toBe('0.00');
+    expect(formatPrice(-123.45)).toBe('0.00');
+    expect(formatPrice(null as any)).toBe('0.00');
+    expect(formatPrice(undefined as any)).toBe('0.00');
+    expect(formatPrice('invalid' as any)).toBe('0.00');
   });
 });
 
@@ -468,5 +571,54 @@ describe('Edge cases and mathematical accuracy', () => {
     expect(zeroBackingCost).toBe(0);
     expect(zeroPackagingCost).toBe(0);
     expect(zeroSetupFee).toBe(0);
+  });
+});
+
+describe('Error Handling Integration', () => {
+  it('should handle complete invalid order gracefully', () => {
+    const invalidOrder: any = {
+      platingType: null,
+      size: '',
+      quantity: -1,
+      backing: { price: NaN },
+      packaging: { price: Infinity },
+      rushOrder: 'invalid'
+    };
+    
+    // Should return safe fallback values instead of throwing
+    const result = calculatePriceBreakdown(invalidOrder);
+    expect(result.total).toBe(0);
+    expect(result.basePrice).toBe(0);
+    expect(result.unitPrice).toBe(0);
+  });
+
+  it('should validate order selections and return appropriate errors', () => {
+    const invalidSelections = {
+      platingType: null,
+      size: null,
+      quantity: null,
+      backing: null,
+      packaging: null,
+      rushOrder: null
+    };
+    
+    const errors = validateOrderSelections(invalidSelections);
+    expect(errors.length).toBeGreaterThan(0);
+    expect(errors).toContain('Plating type is required');
+    expect(errors).toContain('Size selection is required');
+    expect(errors).toContain('Quantity selection is required');
+    expect(errors).toContain('Backing option is required');
+    expect(errors).toContain('Packaging option is required');
+  });
+
+  it('should handle corrupted pricing data gracefully', () => {
+    const corruptedPlatingTypes = [
+      { id: '', name: '', pricing: null },
+      { id: 'valid', name: 'Valid', pricing: { '1.00': { 100: -1 } } }
+    ];
+    
+    const validation = validatePricingData(corruptedPlatingTypes, [], []);
+    expect(validation.isValid).toBe(false);
+    expect(validation.errors.length).toBeGreaterThan(0);
   });
 });

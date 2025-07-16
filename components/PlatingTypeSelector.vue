@@ -84,6 +84,14 @@ const emit = defineEmits<Emits>();
 const platingTypes = PLATING_TYPES;
 
 const selectPlatingType = (type: PlatingType) => {
-  emit('update:selectedType', type);
+  try {
+    if (!type || !type.id || !type.name || !type.pricing) {
+      console.error('Invalid plating type:', type);
+      return;
+    }
+    emit('update:selectedType', type);
+  } catch (error) {
+    console.error('Error selecting plating type:', error);
+  }
 };
 </script>
