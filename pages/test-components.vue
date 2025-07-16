@@ -125,17 +125,43 @@
           </div>
         </div>
       </UiCard>
+      
+      <!-- ModificationsPanel Tests -->
+      <UiCard>
+        <template #header>
+          <h2 class="text-xl font-semibold">Modifications Panel Component</h2>
+        </template>
+        
+        <div class="space-y-4">
+          <div class="text-slate-300 mb-4">
+            <p>Selected Backing: {{ selectedBacking?.name || 'None' }}</p>
+            <p>Selected Packaging: {{ selectedPackaging?.name || 'None' }}</p>
+            <p>Rush Order: {{ rushOrder ? 'Yes' : 'No' }}</p>
+          </div>
+          <CalculatorModificationsPanel
+            :selected-backing="selectedBacking"
+            :selected-packaging="selectedPackaging"
+            :rush-order="rushOrder"
+            @backing-change="selectedBacking = $event"
+            @packaging-change="selectedPackaging = $event"
+            @rush-toggle="rushOrder = $event"
+          />
+        </div>
+      </UiCard>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { PlatingType } from '~/types/pricing';
+import type { PlatingType, BackingOption, PackagingOption } from '~/types/pricing';
 
 // Test page for UI components
 const selectedPlatingType = ref<PlatingType | null>(null);
 const selectedSize = ref<string | null>(null);
 const selectedQuantity = ref<number | null>(null);
+const selectedBacking = ref<BackingOption | null>(null);
+const selectedPackaging = ref<PackagingOption | null>(null);
+const rushOrder = ref(false);
 
 const handlePricingSelection = (size: string, quantity: number) => {
   selectedSize.value = size;
