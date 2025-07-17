@@ -1,75 +1,57 @@
-# Nuxt Minimal Starter
+# Pin Pricer
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+A pricing calculator for custom lapel pins and challenge coins. Built with Nuxt 3 + TypeScript.
 
-## Setup
+## What it does
 
-Make sure to install dependencies:
+Calculates real-time pricing for different pin types (die struck, soft enamel, etc.) based on size, quantity, backing options, and add-ons. Handles complex pricing matrices with setup fees and bulk discounts.
+
+## Development
 
 ```bash
-# npm
-npm install
-
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
+# Install dependencies
 bun install
-```
 
-## Development Server
-
-Start the development server on `http://localhost:3000`:
-
-```bash
-# npm
-npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
+# Start dev server
 bun run dev
+
+# Run tests
+bun run test
 ```
 
-## Production
+## Tech Stack
 
-Build the application for production:
+- **Nuxt 3** with Vue 3 Composition API
+- **TypeScript** for type safety
+- **TailwindCSS** for styling with accessibility features
+- **Vitest** for testing
+- **Heroicons** for UI icons
+
+## Project Structure
+
+```
+components/
+├── calculator/     # Main pricing calculator components
+├── ui/            # Reusable UI components
+composables/       # Vue composables (pricing logic)
+data/             # Static pricing matrices
+types/            # TypeScript definitions
+utils/            # Calculation utilities
+```
+
+## Key Features
+
+- Real-time price calculations
+- Responsive design (mobile-first)
+- Accessibility compliant (ARIA, keyboard nav)
+- Multiple plating types and configurations
+- Quote generation and display
+
+## Commands
 
 ```bash
-# npm
-npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
+bun run dev      # Development server
+bun run build    # Production build
+bun run preview  # Preview build
+bun run test     # Run tests
 ```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
