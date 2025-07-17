@@ -59,7 +59,7 @@
               :class="getCellClasses(size, quantity)"
               :aria-label="getCellAriaLabel(size, quantity)"
               :aria-pressed="selectedSize === size && selectedQuantity === quantity"
-              class="p-2 xs:p-3 text-center text-xs xs:text-sm font-medium transition-all duration-250 rounded-lg border-2 focus:outline-none focus-visible:ring-3 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 min-h-[44px] reduced-motion:transition-none"
+              class="p-2 xs:p-3 cursor-pointer text-center text-xs xs:text-sm font-medium transition-all duration-250 rounded-lg border-2 focus:outline-none focus-visible:ring-3 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 min-h-[44px] reduced-motion:transition-none"
               role="gridcell"
               :tabindex="getTabIndex(size, quantity)"
             >
