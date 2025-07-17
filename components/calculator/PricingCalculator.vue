@@ -12,7 +12,7 @@
 
     <!-- Progress Indicator -->
     <div 
-      class="flex flex-col xs:flex-row items-center justify-center space-y-2 xs:space-y-0 xs:space-x-4 mb-6 xs:mb-8"
+      class="flex flex-row items-center justify-center space-x-4 mb-6 xs:mb-8"
       role="progressbar"
       aria-label="Calculator progress"
       :aria-valuenow="getProgressValue()"
@@ -36,7 +36,7 @@
         </span>
       </div>
       
-      <div class="w-8 h-0.5 bg-slate-700"></div>
+      <div class="hidden sm:block w-8 h-0.5 bg-slate-700"></div>
       
       <div class="flex items-center space-x-2">
         <div :class="[
@@ -55,7 +55,7 @@
         </span>
       </div>
       
-      <div class="w-8 h-0.5 bg-slate-700"></div>
+      <div class="hidden sm:block w-8 h-0.5 bg-slate-700"></div>
       
       <div class="flex items-center space-x-2">
         <div :class="[
