@@ -98,11 +98,11 @@ describe('calculateBasePrice', () => {
     expect(() => {
       calculateBasePrice(mockPlatingType, '', 100);
     }).toThrow('Invalid size provided');
-    
+
     expect(() => {
       calculateBasePrice(mockPlatingType, '1.00', 0);
     }).toThrow('Invalid quantity provided');
-    
+
     expect(() => {
       calculateBasePrice(mockPlatingType, '1.00', -100);
     }).toThrow('Invalid quantity provided');
@@ -141,7 +141,7 @@ describe('calculateSetupFee', () => {
   it('should handle invalid setup fee values', () => {
     const invalidSetupFee = { ...mockPlatingType, setupFee: -100 };
     expect(calculateSetupFee(invalidSetupFee)).toBe(0);
-    
+
     const nanSetupFee = { ...mockPlatingType, setupFee: NaN };
     expect(calculateSetupFee(nanSetupFee)).toBe(0);
   });
@@ -171,7 +171,7 @@ describe('calculateBackingCost', () => {
   it('should handle invalid backing price gracefully', () => {
     const invalidBacking = { ...mockBackingPaid, price: -1 };
     expect(calculateBackingCost(invalidBacking, 100)).toBe(0);
-    
+
     const nanBacking = { ...mockBackingPaid, price: NaN };
     expect(calculateBackingCost(nanBacking, 100)).toBe(0);
   });
@@ -202,7 +202,7 @@ describe('calculatePackagingCost', () => {
   it('should handle invalid packaging price gracefully', () => {
     const invalidPackaging = { ...mockPackagingPaid, price: -1 };
     expect(calculatePackagingCost(invalidPackaging, 100)).toBe(0);
-    
+
     const nanPackaging = { ...mockPackagingPaid, price: NaN };
     expect(calculatePackagingCost(nanPackaging, 100)).toBe(0);
   });
@@ -254,7 +254,7 @@ describe('calculatePriceBreakdown', () => {
 
   it('should calculate complete price breakdown without rush', () => {
     const result = calculatePriceBreakdown(mockOrderSelections);
-    
+
     expect(result.basePrice).toBe(250); // 2.50 * 100
     expect(result.setupFee).toBe(0);
     expect(result.backingCost).toBe(35); // 0.35 * 100
@@ -267,7 +267,7 @@ describe('calculatePriceBreakdown', () => {
   it('should calculate complete price breakdown with rush order', () => {
     const rushOrderSelections = { ...mockOrderSelections, rushOrder: true };
     const result = calculatePriceBreakdown(rushOrderSelections);
-    
+
     expect(result.basePrice).toBe(250);
     expect(result.setupFee).toBe(0);
     expect(result.backingCost).toBe(35);
@@ -283,7 +283,7 @@ describe('calculatePriceBreakdown', () => {
       rushOrder: true
     };
     const result = calculatePriceBreakdown(selectionsWithSetup);
-    
+
     expect(result.setupFee).toBe(100);
     expect(result.rushFee).toBe(92); // (200 + 100 + 35 + 125) * 0.20 = 92
     expect(result.total).toBe(552); // 200 + 100 + 35 + 125 + 92
@@ -567,7 +567,7 @@ describe('Edge cases and mathematical accuracy', () => {
     const zeroBackingCost = calculateBackingCost(mockBackingFree, 100);
     const zeroPackagingCost = calculatePackagingCost(mockPackagingFree, 100);
     const zeroSetupFee = calculateSetupFee(mockPlatingType);
-    
+
     expect(zeroBackingCost).toBe(0);
     expect(zeroPackagingCost).toBe(0);
     expect(zeroSetupFee).toBe(0);
@@ -584,7 +584,7 @@ describe('Error Handling Integration', () => {
       packaging: { price: Infinity },
       rushOrder: 'invalid'
     };
-    
+
     // Should return safe fallback values instead of throwing
     const result = calculatePriceBreakdown(invalidOrder);
     expect(result.total).toBe(0);
@@ -594,14 +594,14 @@ describe('Error Handling Integration', () => {
 
   it('should validate order selections and return appropriate errors', () => {
     const invalidSelections = {
-      platingType: null,
-      size: null,
-      quantity: null,
-      backing: null,
-      packaging: null,
-      rushOrder: null
+      platingType: undefined,
+      size: undefined,
+      quantity: undefined,
+      backing: undefined,
+      packaging: undefined,
+      rushOrder: undefined
     };
-    
+
     const errors = validateOrderSelections(invalidSelections);
     expect(errors.length).toBeGreaterThan(0);
     expect(errors).toContain('Plating type is required');
@@ -615,8 +615,8 @@ describe('Error Handling Integration', () => {
     const corruptedPlatingTypes = [
       { id: '', name: '', pricing: null },
       { id: 'valid', name: 'Valid', pricing: { '1.00': { 100: -1 } } }
-    ];
-    
+    ] as any[];
+
     const validation = validatePricingData(corruptedPlatingTypes, [], []);
     expect(validation.isValid).toBe(false);
     expect(validation.errors.length).toBeGreaterThan(0);
