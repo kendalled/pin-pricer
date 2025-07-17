@@ -3,7 +3,7 @@
     <!-- Header -->
     <div class="text-center">
       <h1 class="text-2xl xs:text-3xl font-bold text-slate-50 mb-2 high-contrast:text-white leading-tight">
-        Lapel Pin Pricing Calculator
+        Lapel Pin Price Calculator
       </h1>
       <p class="text-sm xs:text-base text-slate-400 high-contrast:text-slate-300">
         Get instant pricing for your custom pins and coins
