@@ -1,5 +1,5 @@
 <template>
-  <div class="pricing-table-container" role="region" aria-label="Pricing table for size and quantity selection">
+  <div class="pricing-table-container" role="region" aria-label="Pricing table for size and quantity selection" tabindex="-1">
     <!-- Mobile-first responsive table -->
     <div class="overflow-x-auto px-1">
       <div class="min-w-[320px] xs:min-w-[480px] sm:min-w-[600px] lg:min-w-[700px]">
@@ -64,12 +64,8 @@
               :tabindex="getTabIndex(size, quantity)"
             >
               <div class="flex flex-col justify-center min-h-[2rem] xs:min-h-[2.5rem]">
-                <span class="text-xs text-slate-400 mb-0.5 xs:mb-1 hidden xs:block">per unit</span>
                 <span class="font-semibold text-xs xs:text-sm">
                   ${{ formatPrice(getPrice(size, quantity)) }}
-                </span>
-                <span class="text-xs text-slate-300 mt-0.5 xs:mt-1 hidden sm:block">
-                  Total: ${{ formatPrice(getPrice(size, quantity) * quantity) }}
                 </span>
               </div>
             </button>

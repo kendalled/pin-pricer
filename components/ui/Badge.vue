@@ -1,5 +1,10 @@
 <template>
-  <span :class="badgeClasses">
+  <span 
+    :class="badgeClasses"
+    role="status"
+    :aria-label="ariaLabel"
+    :aria-describedby="ariaDescribedBy"
+  >
     <slot />
   </span>
 </template>
@@ -8,6 +13,8 @@
 interface Props {
   variant?: 'default' | 'success' | 'warning' | 'info' | 'error'
   size?: 'sm' | 'md' | 'lg'
+  ariaLabel?: string
+  ariaDescribedBy?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {

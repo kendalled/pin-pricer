@@ -1,8 +1,17 @@
 <template>
   <div v-if="hasError" class="error-boundary">
-    <div class="bg-red-900/20 border border-red-700/30 rounded-lg p-6">
+    <div 
+      class="bg-red-900/20 border border-red-700/30 rounded-lg p-6"
+      role="alert"
+      aria-live="assertive"
+    >
       <div class="flex items-center space-x-3 mb-4">
-        <svg class="w-6 h-6 text-red-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+        <svg 
+          class="w-6 h-6 text-red-400 flex-shrink-0" 
+          fill="currentColor" 
+          viewBox="0 0 20 20"
+          aria-hidden="true"
+        >
           <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
         </svg>
         <h3 class="text-lg font-semibold text-red-200">Something went wrong</h3>
@@ -26,6 +35,7 @@
             size="sm" 
             @click="retry"
             class="bg-red-800 hover:bg-red-700 border-red-600"
+            aria-describedby="retry-description"
           >
             Try Again
           </Button>
@@ -35,6 +45,7 @@
             size="sm" 
             @click="reset"
             class="text-red-300 hover:text-red-200"
+            aria-describedby="reset-description"
           >
             Reset
           </Button>
@@ -45,9 +56,21 @@
             size="sm" 
             @click="showDetails = true"
             class="text-red-400 hover:text-red-300"
+            aria-describedby="details-description"
           >
             Show Details
           </Button>
+          
+          <!-- Screen reader descriptions -->
+          <div id="retry-description" class="sr-only">
+            Retry the previous action that caused the error
+          </div>
+          <div id="reset-description" class="sr-only">
+            Reset the component to its initial state
+          </div>
+          <div id="details-description" class="sr-only">
+            Show technical details about the error
+          </div>
         </div>
       </div>
     </div>

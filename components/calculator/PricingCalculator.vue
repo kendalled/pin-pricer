@@ -79,7 +79,7 @@
     <div v-if="validationErrors.general && validationErrors.general.length > 0" 
          class="bg-red-900/20 border border-red-700/30 rounded-lg p-4">
       <div class="flex items-center space-x-2 mb-2">
-        <svg class="w-5 h-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+        <svg class="w-5 h-5 text-red-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
           <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
         </svg>
         <h3 class="text-red-200 font-medium">System Errors</h3>
@@ -103,7 +103,7 @@
     <div v-if="!validationStatus.isComplete && !validationErrors.general?.length" 
          class="bg-blue-900/20 border border-blue-700/30 rounded-lg p-4">
       <div class="flex items-center space-x-2 mb-3">
-        <svg class="w-5 h-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+        <svg class="w-5 h-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
           <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
         </svg>
         <h3 class="text-blue-200 font-medium">Complete Your Selection</h3>
@@ -113,7 +113,7 @@
           'flex items-center space-x-2 p-2 rounded',
           state.selectedPlatingType ? 'text-green-300 bg-green-900/20' : 'text-blue-300 bg-blue-900/20'
         ]">
-          <svg v-if="state.selectedPlatingType" class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+          <svg v-if="state.selectedPlatingType" class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
             <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
           </svg>
           <div v-else class="w-4 h-4 border-2 border-blue-400 rounded-full"></div>
@@ -124,7 +124,7 @@
           'flex items-center space-x-2 p-2 rounded',
           (state.selectedSize && state.selectedQuantity) ? 'text-green-300 bg-green-900/20' : 'text-blue-300 bg-blue-900/20'
         ]">
-          <svg v-if="state.selectedSize && state.selectedQuantity" class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+          <svg v-if="state.selectedSize && state.selectedQuantity" class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
             <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
           </svg>
           <div v-else class="w-4 h-4 border-2 border-blue-400 rounded-full"></div>
@@ -135,7 +135,7 @@
           'flex items-center space-x-2 p-2 rounded',
           state.selectedBacking ? 'text-green-300 bg-green-900/20' : 'text-blue-300 bg-blue-900/20'
         ]">
-          <svg v-if="state.selectedBacking" class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+          <svg v-if="state.selectedBacking" class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
             <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
           </svg>
           <div v-else class="w-4 h-4 border-2 border-blue-400 rounded-full"></div>
@@ -146,7 +146,7 @@
           'flex items-center space-x-2 p-2 rounded',
           state.selectedPackaging ? 'text-green-300 bg-green-900/20' : 'text-blue-300 bg-blue-900/20'
         ]">
-          <svg v-if="state.selectedPackaging" class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+          <svg v-if="state.selectedPackaging" class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
             <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
           </svg>
           <div v-else class="w-4 h-4 border-2 border-blue-400 rounded-full"></div>
@@ -266,7 +266,7 @@
             @click="showQuote = true"
           >
             <template v-if="isCalculating">
-              <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
@@ -311,7 +311,7 @@
               </ul>
             </div>
             <div v-else class="flex items-center space-x-2 text-green-400">
-              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
                 <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
               </svg>
               <span>Ready to generate quote</span>
@@ -329,7 +329,7 @@
         <div class="sticky top-0 bg-slate-900 border-b border-slate-700 p-4 flex items-center justify-between">
           <h2 class="text-xl font-semibold text-slate-50">Quote Details</h2>
           <Button variant="ghost" size="sm" @click="showQuote = false">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </Button>
