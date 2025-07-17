@@ -1,7 +1,7 @@
 <template>
   <div class="pricing-table-container" role="region" aria-label="Pricing table for size and quantity selection">
     <!-- Mobile-first responsive table -->
-    <div class="overflow-x-auto">
+    <div class="overflow-x-auto px-1">
       <div class="min-w-[320px] xs:min-w-[480px] sm:min-w-[600px] lg:min-w-[700px]">
         <!-- Size/Quantity Grid -->
         <div 
