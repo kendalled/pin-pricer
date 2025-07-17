@@ -1,46 +1,57 @@
 <template>
   <div class="w-full" role="tablist" aria-label="Plating type selection">
     <!-- Tab Navigation -->
-    <div class="flex flex-wrap gap-1 p-1 bg-slate-800 rounded-xl">
-      <button
+    <div class="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-5 gap-3 xs:gap-4">
+      <label
         v-for="(platingType, index) in platingTypes"
         :key="platingType.id"
-        @click="selectPlatingType(platingType)"
+        :class="getOptionClasses(selectedType?.id === platingType.id)"
+        @keydown.enter="selectPlatingType(platingType)"
+        @keydown.space.prevent="selectPlatingType(platingType)"
         @keydown.arrow-left="focusPreviousTab(index)"
         @keydown.arrow-right="focusNextTab(index)"
         @keydown.home="focusFirstTab"
         @keydown.end="focusLastTab"
         :ref="el => tabRefs[index] = el"
-        :class="tabClasses(platingType)"
         :aria-selected="selectedType?.id === platingType.id"
         :aria-controls="`panel-${platingType.id}`"
         :id="`tab-${platingType.id}`"
         :tabindex="selectedType?.id === platingType.id ? 0 : -1"
         role="tab"
       >
-        <div class="flex flex-col items-center space-y-1 min-h-[3rem] justify-center">
-          <span class="truncate text-center leading-tight">{{ platingType.name }}</span>
-          <div
-            v-if="platingType.setupFee"
-            class="flex items-center space-x-1"
-            :aria-label="`Setup fee: $${platingType.setupFee}`"
-          >
-            <svg
-              class="w-3 h-3 text-amber-400 flex-shrink-0"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-              aria-hidden="true"
+        <input
+          type="radio"
+          name="plating-type"
+          :value="platingType.id"
+          :checked="selectedType?.id === platingType.id"
+          @change="selectPlatingType(platingType)"
+          class="sr-only"
+        />
+        <div class="flex-1 min-w-0">
+          <div class="flex flex-col items-center space-y-1 min-h-[3rem] justify-center">
+            <span class="font-medium text-sm xs:text-base leading-tight text-center">{{ platingType.name }}</span>
+            <div
+              v-if="platingType.setupFee"
+              class="flex items-center space-x-1"
+              :aria-label="`Setup fee: $${platingType.setupFee}`"
             >
-              <path
-                fill-rule="evenodd"
-                d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                clip-rule="evenodd"
-              />
-            </svg>
-            <span class="text-xs text-amber-400 font-medium">+${{ platingType.setupFee }}</span>
+              <svg
+                class="w-3 h-3 text-amber-400 flex-shrink-0"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+                aria-hidden="true"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+              <span class="text-xs text-amber-400 font-medium">+${{ platingType.setupFee }}</span>
+            </div>
           </div>
         </div>
-      </button>
+      </label>
     </div>
 
     <!-- Setup Fee Notice -->
@@ -131,32 +142,30 @@ const focusLastTab = () => {
   tabRefs.value[platingTypes.length - 1]?.focus();
 };
 
-// Dynamic tab classes for better responsive design and accessibility
-const tabClasses = (platingType: PlatingType) => {
-  const isSelected = props.selectedType?.id === platingType.id;
+// Option classes matching ModificationsPanel styling
+const getOptionClasses = (isSelected: boolean): string => {
+  const baseClasses = [
+    'relative flex items-center p-3 xs:p-4 border rounded-xl cursor-pointer',
+    'transition-all duration-250 ease-in-out',
+    'focus-within:ring-3 focus-within:ring-blue-500 focus-within:ring-offset-2 focus-within:ring-offset-slate-900',
+    'min-h-[44px]', // Enhanced touch target
+    'reduced-motion:transition-none'
+  ].join(' ');
+  
+  if (isSelected) {
+    return [
+      baseClasses,
+      'bg-blue-900/30 border-blue-500 text-blue-200 shadow-md',
+      'high-contrast:bg-blue-800 high-contrast:border-blue-300 high-contrast:text-white'
+    ].join(' ');
+  }
   
   return [
-    // Base classes
-    'flex-1 min-w-0 px-2 py-2 xs:px-3 xs:py-2.5 sm:px-4 sm:py-3',
-    'text-xs xs:text-sm font-medium rounded-lg',
-    'transition-all duration-250 ease-in-out',
-    'focus:outline-none focus-visible:ring-3 focus-visible:ring-blue-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-800',
-    // Enhanced touch targets
-    'min-h-[44px] min-w-[80px] xs:min-w-[100px]',
-    // State-based styling
-    isSelected
-      ? [
-          'bg-blue-550 text-white shadow-md',
-          'high-contrast:bg-blue-700 high-contrast:border-2 high-contrast:border-blue-300'
-        ].join(' ')
-      : [
-          'text-slate-300 bg-slate-700/50',
-          'hover:text-white hover:bg-slate-700 hover:shadow-sm',
-          'active:bg-slate-600 active:scale-95',
-          'high-contrast:text-white high-contrast:bg-slate-800 high-contrast:border high-contrast:border-slate-300'
-        ].join(' '),
-    // Reduced motion support
-    'reduced-motion:transition-none'
+    baseClasses,
+    'bg-slate-800 border-slate-600 text-slate-300',
+    'hover:bg-slate-700/50 hover:border-slate-500 hover:text-slate-200 hover:shadow-sm',
+    'active:bg-slate-700 active:scale-95',
+    'high-contrast:bg-slate-950 high-contrast:border-slate-300 high-contrast:text-white'
   ].join(' ');
 };
 </script>

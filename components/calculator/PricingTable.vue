@@ -221,12 +221,12 @@ const getCellClasses = (size: string, quantity: number): string => {
   ].join(' ');
   
   if (isSelected) {
-    return `bg-blue-550 border-blue-500 text-white shadow-lg shadow-blue-500/25 high-contrast:bg-blue-700 high-contrast:border-blue-300 ${baseClasses}`;
+    return `bg-blue-900/30 border-blue-500 text-blue-200 shadow-md high-contrast:bg-blue-800 high-contrast:border-blue-300 high-contrast:text-white ${baseClasses}`;
   } else if (isHovered) {
-    return `bg-slate-600 border-slate-500 text-slate-100 shadow-md ${baseClasses}`;
+    return `bg-slate-700/50 border-slate-500 text-slate-200 shadow-sm ${baseClasses}`;
   }
   
-  return `bg-slate-700 border-slate-600 text-slate-200 hover:bg-slate-600 hover:border-slate-500 ${baseClasses}`;
+  return `bg-slate-800 border-slate-600 text-slate-300 hover:bg-slate-700/50 hover:border-slate-500 hover:text-slate-200 hover:shadow-sm ${baseClasses}`;
 };
 
 const getCellAriaLabel = (size: string, quantity: number): string => {
