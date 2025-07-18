@@ -208,11 +208,12 @@ export function calculateRushFee(
   setupFee: number,
   platingCost: number,
   backingCost: number,
-  packagingCost: number
+  packagingCost: number,
+  moldFee: number = 0
 ): number {
   try {
     // Validate all input values
-    const values = [basePrice, setupFee, platingCost, backingCost, packagingCost];
+    const values = [basePrice, setupFee, platingCost, backingCost, packagingCost, moldFee];
     for (const value of values) {
       if (typeof value !== 'number' || isNaN(value) || !isFinite(value) || value < 0) {
         console.warn('Invalid value for rush fee calculation:', value);
@@ -220,7 +221,7 @@ export function calculateRushFee(
       }
     }
     
-    const subtotal = basePrice + setupFee + platingCost + backingCost + packagingCost;
+    const subtotal = basePrice + setupFee + platingCost + backingCost + packagingCost + moldFee;
     if (isNaN(subtotal) || !isFinite(subtotal) || subtotal < 0) {
       console.warn('Invalid subtotal for rush fee calculation:', subtotal);
       return 0;
@@ -373,14 +374,27 @@ export function calculatePriceBreakdown(selections: OrderSelections): PriceBreak
     const backingCost = calculateBackingCost(selections.backing, selections.quantity);
     const packagingCost = calculatePackagingCost(selections.packaging, selections.quantity);
     
+    // Calculate mold fee with error handling to maintain existing functionality
+    let moldFee = 0;
+    let moldFeeWaived = false;
+    try {
+      const moldFeeResult = calculateMoldFee(selections.size, selections.quantity);
+      moldFee = moldFeeResult.fee;
+      moldFeeWaived = moldFeeResult.waived;
+    } catch (error) {
+      console.error('Error calculating mold fee, continuing with $0 fee:', error);
+      moldFee = 0;
+      moldFeeWaived = false;
+    }
+    
     const rushFee = selections.rushOrder 
-      ? calculateRushFee(basePrice, setupFee, platingCost, backingCost, packagingCost)
+      ? calculateRushFee(basePrice, setupFee, platingCost, backingCost, packagingCost, moldFee)
       : 0;
     
-    const total = basePrice + setupFee + platingCost + backingCost + packagingCost + rushFee;
+    const total = basePrice + setupFee + platingCost + backingCost + packagingCost + rushFee + moldFee;
     
     // Validate all calculated values
-    const values = [basePrice, unitPrice, setupFee, platingCost, backingCost, packagingCost, rushFee, total];
+    const values = [basePrice, unitPrice, setupFee, platingCost, backingCost, packagingCost, rushFee, moldFee, total];
     for (const value of values) {
       if (typeof value !== 'number' || isNaN(value) || !isFinite(value) || value < 0) {
         throw new Error(`Invalid calculated value: ${value}`);
@@ -394,8 +408,8 @@ export function calculatePriceBreakdown(selections: OrderSelections): PriceBreak
       backingCost,
       packagingCost,
       rushFee,
-      moldFee: 0,
-      moldFeeWaived: false,
+      moldFee,
+      moldFeeWaived,
       total,
       unitPrice
     };
