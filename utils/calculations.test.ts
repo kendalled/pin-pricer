@@ -16,7 +16,10 @@ import {
   validatePackagingOption,
   validateOrderSelections,
   isOrderComplete,
-  validatePricingData
+  validatePricingData,
+  parsePinSize,
+  getMoldFeeForSize,
+  calculateMoldFee
 } from './calculations';
 import type { ProductionMethod, PlatingOption, BackingOption, PackagingOption, OrderSelections } from '~/types/pricing';
 
@@ -343,8 +346,8 @@ describe('calculatePriceBreakdown', () => {
 
     expect(result.setupFee).toBe(100);
     expect(result.platingCost).toBe(60); // 0.60 * 100
-    expect(result.rushFee).toBe(102); // (200 + 100 + 60 + 35 + 125) * 0.20 = 104
-    expect(result.total).toBe(622); // 200 + 100 + 60 + 35 + 125 + 102
+    expect(result.rushFee).toBe(104); // (200 + 100 + 60 + 35 + 125) * 0.20 = 104
+    expect(result.total).toBe(624); // 200 + 100 + 60 + 35 + 125 + 104
   });
 });
 
@@ -717,5 +720,85 @@ describe('Error Handling Integration', () => {
     const validation = validatePricingData(corruptedPlatingTypes, [], [], []);
     expect(validation.isValid).toBe(false);
     expect(validation.errors.length).toBeGreaterThan(0);
+  });
+});
+
+// Add mold fee function tests
+describe('Mold Fee Functions', () => {
+  describe('parsePinSize', () => {
+    it('should parse valid size strings correctly', () => {
+      expect(parsePinSize('1.50')).toBe(1.5);
+      expect(parsePinSize('2.00')).toBe(2.0);
+      expect(parsePinSize('0.75')).toBe(0.75);
+      expect(parsePinSize(' 1.25 ')).toBe(1.25); // with whitespace
+    });
+
+    it('should throw error for invalid size strings', () => {
+      expect(() => parsePinSize('')).toThrow('Invalid size provided');
+      expect(() => parsePinSize('abc')).toThrow('Invalid size format');
+      expect(() => parsePinSize('-1.5')).toThrow('Invalid size format');
+      expect(() => parsePinSize('0')).toThrow('Invalid size format');
+    });
+  });
+
+  describe('getMoldFeeForSize', () => {
+    it('should return correct fees for size thresholds', () => {
+      expect(getMoldFeeForSize(1.0)).toBe(50.00);   // ≤ 1.5"
+      expect(getMoldFeeForSize(1.5)).toBe(50.00);   // exactly 1.5"
+      expect(getMoldFeeForSize(1.75)).toBe(62.50);  // exactly 1.75"
+      expect(getMoldFeeForSize(2.0)).toBe(75.00);   // exactly 2.0"
+      expect(getMoldFeeForSize(2.5)).toBe(75.00);   // > 2.0"
+    });
+
+    it('should throw error for invalid sizes', () => {
+      expect(() => getMoldFeeForSize(0)).toThrow('Invalid size for mold fee lookup');
+      expect(() => getMoldFeeForSize(-1)).toThrow('Invalid size for mold fee lookup');
+      expect(() => getMoldFeeForSize(NaN)).toThrow('Invalid size for mold fee lookup');
+    });
+  });
+
+  describe('calculateMoldFee', () => {
+    it('should calculate mold fee correctly for low quantities', () => {
+      const result1 = calculateMoldFee('1.50', 100);
+      expect(result1.fee).toBe(50.00);
+      expect(result1.waived).toBe(false);
+      
+      const result2 = calculateMoldFee('1.75', 300);
+      expect(result2.fee).toBe(62.50);
+      expect(result2.waived).toBe(false);
+      
+      const result3 = calculateMoldFee('2.00', 500);
+      expect(result3.fee).toBe(75.00);
+      expect(result3.waived).toBe(false);
+    });
+
+    it('should waive mold fee for high quantities', () => {
+      const result1 = calculateMoldFee('1.50', 501);
+      expect(result1.fee).toBe(0);
+      expect(result1.waived).toBe(true);
+      expect(result1.reason).toContain('High volume exemption');
+      
+      const result2 = calculateMoldFee('2.00', 1000);
+      expect(result2.fee).toBe(0);
+      expect(result2.waived).toBe(true);
+    });
+
+    it('should handle edge case of exactly 500 quantity', () => {
+      const result = calculateMoldFee('1.50', 500);
+      expect(result.fee).toBe(50.00);
+      expect(result.waived).toBe(false);
+    });
+
+    it('should handle invalid inputs gracefully', () => {
+      const result1 = calculateMoldFee('', 100);
+      expect(result1.fee).toBe(0);
+      expect(result1.waived).toBe(false);
+      expect(result1.reason).toContain('Error calculating');
+      
+      const result2 = calculateMoldFee('1.50', 0);
+      expect(result2.fee).toBe(0);
+      expect(result2.waived).toBe(false);
+      expect(result2.reason).toContain('Error calculating');
+    });
   });
 });

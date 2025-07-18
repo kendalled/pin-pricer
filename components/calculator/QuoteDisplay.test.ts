@@ -56,9 +56,12 @@ describe('QuoteDisplay', () => {
   const mockBreakdown: PriceBreakdown = {
     basePrice: 630.00,
     setupFee: 0,
+    platingCost: 0,
     backingCost: 0,
     packagingCost: 375.00,
     rushFee: 0,
+    moldFee: 0,
+    moldFeeWaived: false,
     total: 1005.00,
     unitPrice: 1.26
   };
@@ -72,9 +75,12 @@ describe('QuoteDisplay', () => {
   const mockBreakdownWithAllFees: PriceBreakdown = {
     basePrice: 580.00,
     setupFee: 100.00,
+    platingCost: 0,
     backingCost: 0,
     packagingCost: 375.00,
     rushFee: 211.00, // 20% of (580 + 100 + 0 + 375)
+    moldFee: 0,
+    moldFeeWaived: false,
     total: 1266.00,
     unitPrice: 1.16
   };
@@ -277,9 +283,12 @@ describe('QuoteDisplay', () => {
     const zeroBreakdown: PriceBreakdown = {
       basePrice: 500.00,
       setupFee: 0,
+      platingCost: 0,
       backingCost: 0,
       packagingCost: 0,
       rushFee: 0,
+      moldFee: 0,
+      moldFeeWaived: false,
       total: 500.00,
       unitPrice: 1.00
     };

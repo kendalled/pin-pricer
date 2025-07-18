@@ -1,4 +1,5 @@
-import type { ProductionMethod, PlatingOption, BackingOption, PackagingOption, OrderSelections, PriceBreakdown } from '~/types/pricing';
+import type { ProductionMethod, PlatingOption, BackingOption, PackagingOption, OrderSelections, PriceBreakdown, MoldFeeCalculationResult } from '~/types/pricing';
+import { MOLD_FEE_CONFIG } from '~/types/pricing';
 
 /**
  * Calculate the base price for a given production method, size, and quantity
@@ -239,6 +240,113 @@ export function calculateRushFee(
 }
 
 /**
+ * Parse pin size string to numeric value with validation
+ */
+export function parsePinSize(sizeString: string): number {
+  try {
+    // Validate input
+    if (!sizeString || typeof sizeString !== 'string') {
+      throw new Error('Invalid size provided for mold fee calculation');
+    }
+
+    // Remove any whitespace and convert to number
+    const trimmedSize = sizeString.trim();
+    if (trimmedSize === '') {
+      throw new Error('Empty size string provided');
+    }
+
+    const sizeNumber = parseFloat(trimmedSize);
+    
+    // Validate parsed number
+    if (isNaN(sizeNumber) || !isFinite(sizeNumber) || sizeNumber <= 0) {
+      throw new Error(`Invalid size format: ${sizeString}`);
+    }
+
+    // Additional validation for reasonable size ranges (0.1" to 10")
+    if (sizeNumber < 0.1 || sizeNumber > 10) {
+      throw new Error(`Size out of reasonable range: ${sizeNumber}"`);
+    }
+
+    return sizeNumber;
+  } catch (error) {
+    console.error('Error parsing pin size:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get mold fee for a given size based on thresholds
+ */
+export function getMoldFeeForSize(sizeInches: number): number {
+  try {
+    // Validate input
+    if (typeof sizeInches !== 'number' || isNaN(sizeInches) || !isFinite(sizeInches) || sizeInches <= 0) {
+      throw new Error(`Invalid size for mold fee lookup: ${sizeInches}`);
+    }
+
+    // Find the appropriate fee threshold
+    for (const threshold of MOLD_FEE_CONFIG.SIZE_THRESHOLDS) {
+      if (sizeInches <= threshold.maxSize) {
+        return threshold.fee;
+      }
+    }
+
+    // Fallback - should not reach here due to Infinity threshold
+    return MOLD_FEE_CONFIG.SIZE_THRESHOLDS[MOLD_FEE_CONFIG.SIZE_THRESHOLDS.length - 1].fee;
+  } catch (error) {
+    console.error('Error getting mold fee for size:', error);
+    throw error;
+  }
+}
+
+/**
+ * Calculate mold fee with quantity exemption logic
+ */
+export function calculateMoldFee(size: string, quantity: number): MoldFeeCalculationResult {
+  try {
+    // Validate inputs
+    if (!size || typeof size !== 'string') {
+      throw new Error('Invalid size provided for mold fee calculation');
+    }
+    
+    if (!quantity || typeof quantity !== 'number' || quantity <= 0) {
+      throw new Error('Invalid quantity provided for mold fee calculation');
+    }
+
+    // Check quantity exemption first (501+ pieces get waived fee)
+    if (quantity > MOLD_FEE_CONFIG.QUANTITY_EXEMPTION_THRESHOLD) {
+      return {
+        fee: 0,
+        waived: true,
+        reason: 'High volume exemption (500+ qty)'
+      };
+    }
+
+    // Parse size and get fee
+    const sizeInches = parsePinSize(size);
+    const fee = getMoldFeeForSize(sizeInches);
+
+    // Validate calculated fee
+    if (typeof fee !== 'number' || isNaN(fee) || fee < 0) {
+      throw new Error(`Invalid calculated mold fee: ${fee}`);
+    }
+
+    return {
+      fee,
+      waived: false
+    };
+  } catch (error) {
+    console.error('Error calculating mold fee:', error);
+    // Return safe fallback values
+    return {
+      fee: 0,
+      waived: false,
+      reason: 'Error calculating mold fee'
+    };
+  }
+}
+
+/**
  * Calculate the complete price breakdown for an order
  */
 export function calculatePriceBreakdown(selections: OrderSelections): PriceBreakdown {
@@ -286,6 +394,8 @@ export function calculatePriceBreakdown(selections: OrderSelections): PriceBreak
       backingCost,
       packagingCost,
       rushFee,
+      moldFee: 0,
+      moldFeeWaived: false,
       total,
       unitPrice
     };
@@ -299,6 +409,8 @@ export function calculatePriceBreakdown(selections: OrderSelections): PriceBreak
       backingCost: 0,
       packagingCost: 0,
       rushFee: 0,
+      moldFee: 0,
+      moldFeeWaived: false,
       total: 0,
       unitPrice: 0
     };

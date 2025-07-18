@@ -11,6 +11,8 @@ describe('CalculationSummary', () => {
     backingCost: 20.00,
     packagingCost: 15.00,
     rushFee: 39.00, // 20% of (100 + 50 + 10 + 20 + 15) = 39
+    moldFee: 0,
+    moldFeeWaived: false,
     total: 234.00,
     unitPrice: 1.00
   };
@@ -22,6 +24,8 @@ describe('CalculationSummary', () => {
     backingCost: 0,
     packagingCost: 0,
     rushFee: 0,
+    moldFee: 0,
+    moldFeeWaived: false,
     total: 100.00,
     unitPrice: 1.00
   };
@@ -33,6 +37,8 @@ describe('CalculationSummary', () => {
     backingCost: 0,
     packagingCost: 0,
     rushFee: 0,
+    moldFee: 0,
+    moldFeeWaived: false,
     total: 200.00,
     unitPrice: 1.00
   };
@@ -115,6 +121,8 @@ describe('CalculationSummary', () => {
       backingCost: 12.34,
       packagingCost: 5.67,
       rushFee: 43.65,
+      moldFee: 0,
+      moldFeeWaived: false,
       total: 261.90,
       unitPrice: 1.23
     };
@@ -173,6 +181,8 @@ describe('CalculationSummary', () => {
       backingCost: 0,
       packagingCost: 0,
       rushFee: 0,
+      moldFee: 0,
+      moldFeeWaived: false,
       total: 100,
       unitPrice: 0
     };

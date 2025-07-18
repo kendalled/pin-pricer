@@ -14,4 +14,16 @@ export default defineNuxtConfig({
   vite: {
     plugins: [tailwindcss()],
   },
+  nitro: {
+    experimental: {
+      wasm: true
+    }
+  },
+  app: {
+    head: {
+      meta: [
+        { name: 'robots', content: 'noindex, nofollow' }
+      ]
+    }
+  }
 })
