@@ -1,15 +1,10 @@
 <template>
-  <div 
-    class="bg-slate-800 rounded-xl border border-slate-600 p-4 xs:p-6 high-contrast:bg-slate-950 high-contrast:border-slate-300"
-    role="region"
-    aria-labelledby="price-breakdown-heading"
-  >
-    <h3 
-      id="price-breakdown-heading"
-      class="text-lg font-semibold text-slate-50 mb-4 high-contrast:text-white"
-    >
-      Price Breakdown
-    </h3>
+  <Card>
+    <template #header>
+      <h3 class="text-lg font-semibold text-slate-50">
+        Price Breakdown
+      </h3>
+    </template>
     
     <!-- Show message when calculation is not complete -->
     <div 
@@ -109,13 +104,14 @@
         </span>
       </div>
     </div>
-  </div>
+  </Card>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
 import type { PriceBreakdown } from '~/types/pricing';
 import { formatCurrency } from '~/utils/calculations';
+import Card from '~/components/ui/Card.vue';
 
 interface Props {
   breakdown: PriceBreakdown | null;
