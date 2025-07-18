@@ -1,13 +1,15 @@
 import { ref, computed, reactive, watch, readonly } from 'vue';
 import type { 
-  PlatingType, 
+  ProductionMethod,
+  PlatingOption, 
   BackingOption, 
   PackagingOption, 
   OrderSelections, 
   PriceBreakdown 
 } from '~/types/pricing';
 import { 
-  PLATING_TYPES, 
+  PRODUCTION_METHODS,
+  PLATING_OPTIONS, 
   BACKING_OPTIONS, 
   PACKAGING_OPTIONS 
 } from '~/data/pricing';
@@ -19,7 +21,8 @@ import {
 } from '~/utils/calculations';
 
 export interface PricingCalculatorState {
-  selectedPlatingType: PlatingType | null;
+  selectedProductionMethod: ProductionMethod | null;
+  selectedPlatingType: PlatingOption | null;
   selectedSize: string | null;
   selectedQuantity: number | null;
   selectedBacking: BackingOption | null;
@@ -28,6 +31,7 @@ export interface PricingCalculatorState {
 }
 
 export interface ValidationErrors {
+  productionMethod?: string;
   platingType?: string;
   size?: string;
   quantity?: string;
@@ -39,6 +43,7 @@ export interface ValidationErrors {
 export function usePricingCalculator() {
   // Reactive state for all selections
   const state = reactive<PricingCalculatorState>({
+    selectedProductionMethod: null,
     selectedPlatingType: null,
     selectedSize: null,
     selectedQuantity: null,
@@ -52,7 +57,7 @@ export function usePricingCalculator() {
   const isCalculating = ref(false);
 
   // Validate pricing data on initialization
-  const dataValidation = validatePricingData(PLATING_TYPES, BACKING_OPTIONS, PACKAGING_OPTIONS);
+  const dataValidation = validatePricingData(PRODUCTION_METHODS, PLATING_OPTIONS, BACKING_OPTIONS, PACKAGING_OPTIONS);
   if (!dataValidation.isValid) {
     console.error('Pricing data validation failed:', dataValidation.errors);
     validationErrors.value.general = dataValidation.errors;
@@ -61,6 +66,7 @@ export function usePricingCalculator() {
   // Computed properties for derived state
   const isSelectionComplete = computed(() => {
     return !!(
+      state.selectedProductionMethod &&
       state.selectedPlatingType &&
       state.selectedSize &&
       state.selectedQuantity &&
@@ -71,6 +77,7 @@ export function usePricingCalculator() {
 
   const currentSelections = computed((): Partial<OrderSelections> => {
     return {
+      productionMethod: state.selectedProductionMethod || undefined,
       platingType: state.selectedPlatingType || undefined,
       size: state.selectedSize || undefined,
       quantity: state.selectedQuantity || undefined,
@@ -111,14 +118,14 @@ export function usePricingCalculator() {
   });
 
   // Methods for handling state changes
-  const setPlatingType = (platingType: PlatingType) => {
-    state.selectedPlatingType = platingType;
-    clearValidationError('platingType');
+  const setProductionMethod = (productionMethod: ProductionMethod) => {
+    state.selectedProductionMethod = productionMethod;
+    clearValidationError('productionMethod');
     
-    // Reset size/quantity selection when plating type changes
+    // Reset size/quantity selection when production method changes
     // to ensure pricing matrix compatibility
     if (state.selectedSize && state.selectedQuantity) {
-      const hasValidPricing = platingType.pricing[state.selectedSize]?.[state.selectedQuantity];
+      const hasValidPricing = productionMethod.pricing[state.selectedSize]?.[state.selectedQuantity];
       if (!hasValidPricing) {
         state.selectedSize = null;
         state.selectedQuantity = null;
@@ -126,14 +133,19 @@ export function usePricingCalculator() {
     }
   };
 
+  const setPlatingType = (platingType: PlatingOption) => {
+    state.selectedPlatingType = platingType;
+    clearValidationError('platingType');
+  };
+
   const setSizeAndQuantity = (size: string, quantity: number) => {
-    if (!state.selectedPlatingType) {
-      setValidationError('platingType', 'Please select a plating type first');
+    if (!state.selectedProductionMethod) {
+      setValidationError('productionMethod', 'Please select a production method first');
       return;
     }
 
     // Validate that the combination exists in the pricing matrix
-    const unitPrice = state.selectedPlatingType.pricing[size]?.[quantity];
+    const unitPrice = state.selectedProductionMethod.pricing[size]?.[quantity];
     if (unitPrice === undefined) {
       setValidationError('general', [`Invalid size "${size}" or quantity "${quantity}" combination`]);
       return;
@@ -160,6 +172,7 @@ export function usePricingCalculator() {
   };
 
   const resetSelections = () => {
+    state.selectedProductionMethod = null;
     state.selectedPlatingType = null;
     state.selectedSize = null;
     state.selectedQuantity = null;
@@ -199,19 +212,20 @@ export function usePricingCalculator() {
   };
 
   // Get available options
-  const getAvailablePlatingTypes = () => PLATING_TYPES;
+  const getAvailableProductionMethods = () => PRODUCTION_METHODS;
+  const getAvailablePlatingOptions = () => PLATING_OPTIONS;
   const getAvailableBackingOptions = () => BACKING_OPTIONS;
   const getAvailablePackagingOptions = () => PACKAGING_OPTIONS;
 
-  // Get available sizes and quantities for current plating type
+  // Get available sizes and quantities for current production method
   const getAvailableSizes = computed(() => {
-    if (!state.selectedPlatingType) return [];
-    return Object.keys(state.selectedPlatingType.pricing);
+    if (!state.selectedProductionMethod) return [];
+    return Object.keys(state.selectedProductionMethod.pricing);
   });
 
   const getAvailableQuantities = computed(() => {
-    if (!state.selectedPlatingType || !state.selectedSize) return [];
-    const sizeData = state.selectedPlatingType.pricing[state.selectedSize];
+    if (!state.selectedProductionMethod || !state.selectedSize) return [];
+    const sizeData = state.selectedProductionMethod.pricing[state.selectedSize];
     return sizeData ? Object.keys(sizeData).map(Number) : [];
   });
 
@@ -225,6 +239,9 @@ export function usePricingCalculator() {
       }
       
       // Validate individual fields
+      if (newSelections.productionMethod && validationErrors.value.productionMethod) {
+        clearValidationError('productionMethod');
+      }
       if (newSelections.platingType && validationErrors.value.platingType) {
         clearValidationError('platingType');
       }
@@ -259,6 +276,7 @@ export function usePricingCalculator() {
     getAvailableQuantities,
     
     // Methods
+    setProductionMethod,
     setPlatingType,
     setSizeAndQuantity,
     setBacking,
@@ -273,7 +291,8 @@ export function usePricingCalculator() {
     clearAllValidationErrors,
     
     // Data access methods
-    getAvailablePlatingTypes,
+    getAvailableProductionMethods,
+    getAvailablePlatingOptions,
     getAvailableBackingOptions,
     getAvailablePackagingOptions
   };

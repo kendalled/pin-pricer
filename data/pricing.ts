@@ -1,6 +1,6 @@
-import type { PlatingType, BackingOption, PackagingOption } from '~/types/pricing';
+import type { ProductionMethod, PlatingOption, BackingOption, PackagingOption } from '~/types/pricing';
 
-export const PLATING_TYPES: PlatingType[] = [
+export const PRODUCTION_METHODS: ProductionMethod[] = [
   {
     id: 'die-struck',
     name: 'Die Struck',
@@ -76,14 +76,29 @@ export const BACKING_OPTIONS: BackingOption[] = [
   { id: 'deluxe', name: 'Deluxe Clutch', price: 0.40, isFree: false }
 ];
 
+export const PLATING_OPTIONS: PlatingOption[] = [
+  { id: 'polished-gold', name: 'Polished Gold', price: 0.00, isFree: true },
+  { id: 'polished-silver', name: 'Polished Silver', price: 0.00, isFree: true },
+  { id: 'polished-copper', name: 'Polished Copper', price: 0.00, isFree: true },
+  { id: 'polished-nickel', name: 'Polished Nickel', price: 0.00, isFree: true },
+  { id: 'black-metal', name: 'Black Metal', price: 0.00, isFree: true },
+  { id: 'antique-gold', name: 'Antique Gold', price: 0.60, isFree: false },
+  { id: 'antique-silver', name: 'Antique Silver', price: 0.35, isFree: false },
+  { id: 'antique-copper', name: 'Antique Copper', price: 0.30, isFree: false },
+  { id: 'dual-plated', name: 'Dual Plated', price: 0.70, isFree: false },
+  { id: 'color-coated', name: 'Color Coated', price: 0.00, isFree: true }
+];
+
 export const PACKAGING_OPTIONS: PackagingOption[] = [
   { id: 'poly-bag', name: 'Poly Bag', price: 0.00, isFree: true },
-  { id: 'velvet-pouch', name: 'Velvet Pouch', price: 0.75, isFree: false },
-  { id: 'gift-box', name: 'Gift Box', price: 1.25, isFree: false },
-  { id: 'presentation-box', name: 'Presentation Box', price: 2.50, isFree: false },
-  { id: 'custom-card', name: 'Custom Card', price: 0.50, isFree: false }
+  { id: 'acrylic-case', name: 'Acrylic Case', price: 1.00, isFree: false },
+  { id: 'velvet-bag', name: 'Velvet Bag', price: 0.60, isFree: false },
+  { id: 'velvet-case', name: 'Velvet Case', price: 4.00, isFree: false }
 ];
 
 // Size and quantity arrays for easy iteration
 export const SIZES = ['0.75', '1.00', '1.25', '1.50', '1.75', '2.00'];
 export const QUANTITIES = [100, 200, 300, 500, 750, 1000, 2000];
+
+// Legacy export for backward compatibility during transition
+export const PLATING_TYPES = PRODUCTION_METHODS;

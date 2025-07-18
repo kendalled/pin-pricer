@@ -3,38 +3,54 @@ import {
   calculateBasePrice,
   getUnitPrice,
   calculateSetupFee,
+  calculatePlatingCost,
   calculateBackingCost,
   calculatePackagingCost,
   calculateRushFee,
   calculatePriceBreakdown,
   formatCurrency,
   formatPrice,
-  validatePlatingType,
+  validateProductionMethod,
+  validatePlatingOption,
   validateBackingOption,
   validatePackagingOption,
   validateOrderSelections,
   isOrderComplete,
   validatePricingData
 } from './calculations';
-import type { PlatingType, BackingOption, PackagingOption, OrderSelections } from '~/types/pricing';
+import type { ProductionMethod, PlatingOption, BackingOption, PackagingOption, OrderSelections } from '~/types/pricing';
 
 // Test data
-const mockPlatingType: PlatingType = {
-  id: 'test-plating',
-  name: 'Test Plating',
+const mockProductionMethod: ProductionMethod = {
+  id: 'test-production',
+  name: 'Test Production',
   pricing: {
     '1.00': { 100: 2.50, 200: 2.00, 500: 1.50 },
     '1.25': { 100: 2.75, 200: 2.25, 500: 1.75 }
   }
 };
 
-const mockPlatingTypeWithSetup: PlatingType = {
+const mockProductionMethodWithSetup: ProductionMethod = {
   id: 'offset-printed',
   name: 'Offset Printed',
   setupFee: 100,
   pricing: {
     '1.00': { 100: 2.00, 200: 1.50, 500: 1.00 }
   }
+};
+
+const mockPlatingOption: PlatingOption = {
+  id: 'antique-gold',
+  name: 'Antique Gold',
+  price: 0.60,
+  isFree: false
+};
+
+const mockPlatingOptionFree: PlatingOption = {
+  id: 'polished-gold',
+  name: 'Polished Gold',
+  price: 0.00,
+  isFree: true
 };
 
 const mockBackingFree: BackingOption = {
@@ -67,83 +83,119 @@ const mockPackagingPaid: PackagingOption = {
 
 describe('calculateBasePrice', () => {
   it('should calculate base price correctly', () => {
-    const result = calculateBasePrice(mockPlatingType, '1.00', 100);
+    const result = calculateBasePrice(mockProductionMethod, '1.00', 100);
     expect(result).toBe(250); // 2.50 * 100
   });
 
   it('should calculate base price for different quantities', () => {
-    const result = calculateBasePrice(mockPlatingType, '1.00', 200);
+    const result = calculateBasePrice(mockProductionMethod, '1.00', 200);
     expect(result).toBe(400); // 2.00 * 200
   });
 
   it('should throw error for invalid size', () => {
     expect(() => {
-      calculateBasePrice(mockPlatingType, '3.00', 100);
-    }).toThrow('Invalid size "3.00" or quantity "100" for plating type "Test Plating"');
+      calculateBasePrice(mockProductionMethod, '3.00', 100);
+    }).toThrow('Invalid size "3.00" or quantity "100" for production method "Test Production"');
   });
 
   it('should throw error for invalid quantity', () => {
     expect(() => {
-      calculateBasePrice(mockPlatingType, '1.00', 150);
-    }).toThrow('Invalid size "1.00" or quantity "150" for plating type "Test Plating"');
+      calculateBasePrice(mockProductionMethod, '1.00', 150);
+    }).toThrow('Invalid size "1.00" or quantity "150" for production method "Test Production"');
   });
 
-  it('should throw error for invalid plating type', () => {
+  it('should throw error for invalid production method', () => {
     expect(() => {
       calculateBasePrice(null as any, '1.00', 100);
-    }).toThrow('Invalid plating type provided');
+    }).toThrow('Invalid production method provided');
   });
 
   it('should throw error for invalid inputs', () => {
     expect(() => {
-      calculateBasePrice(mockPlatingType, '', 100);
+      calculateBasePrice(mockProductionMethod, '', 100);
     }).toThrow('Invalid size provided');
 
     expect(() => {
-      calculateBasePrice(mockPlatingType, '1.00', 0);
+      calculateBasePrice(mockProductionMethod, '1.00', 0);
     }).toThrow('Invalid quantity provided');
 
     expect(() => {
-      calculateBasePrice(mockPlatingType, '1.00', -100);
+      calculateBasePrice(mockProductionMethod, '1.00', -100);
     }).toThrow('Invalid quantity provided');
   });
 });
 
 describe('getUnitPrice', () => {
   it('should return correct unit price', () => {
-    const result = getUnitPrice(mockPlatingType, '1.25', 500);
+    const result = getUnitPrice(mockProductionMethod, '1.25', 500);
     expect(result).toBe(1.75);
   });
 
   it('should throw error for invalid combination', () => {
     expect(() => {
-      getUnitPrice(mockPlatingType, '2.00', 100);
+      getUnitPrice(mockProductionMethod, '2.00', 100);
     }).toThrow();
   });
 });
 
 describe('calculateSetupFee', () => {
   it('should return setup fee when present', () => {
-    const result = calculateSetupFee(mockPlatingTypeWithSetup);
+    const result = calculateSetupFee(mockProductionMethodWithSetup);
     expect(result).toBe(100);
   });
 
   it('should return 0 when no setup fee', () => {
-    const result = calculateSetupFee(mockPlatingType);
+    const result = calculateSetupFee(mockProductionMethod);
     expect(result).toBe(0);
   });
 
-  it('should handle invalid plating type gracefully', () => {
+  it('should handle invalid production method gracefully', () => {
     expect(calculateSetupFee(null as any)).toBe(0);
     expect(calculateSetupFee(undefined as any)).toBe(0);
   });
 
   it('should handle invalid setup fee values', () => {
-    const invalidSetupFee = { ...mockPlatingType, setupFee: -100 };
+    const invalidSetupFee = { ...mockProductionMethod, setupFee: -100 };
     expect(calculateSetupFee(invalidSetupFee)).toBe(0);
 
-    const nanSetupFee = { ...mockPlatingType, setupFee: NaN };
+    const nanSetupFee = { ...mockProductionMethod, setupFee: NaN };
     expect(calculateSetupFee(nanSetupFee)).toBe(0);
+  });
+});
+
+describe('calculatePlatingCost', () => {
+  it('should calculate plating cost for paid option', () => {
+    const result = calculatePlatingCost(mockPlatingOption, 100);
+    expect(result).toBe(60); // 0.60 * 100
+  });
+
+  it('should return 0 for free plating option', () => {
+    const result = calculatePlatingCost(mockPlatingOptionFree, 100);
+    expect(result).toBe(0);
+  });
+
+  it('should handle different quantities', () => {
+    const result = calculatePlatingCost(mockPlatingOption, 500);
+    expect(result).toBe(300); // 0.60 * 500
+  });
+
+  it('should handle invalid plating option gracefully', () => {
+    expect(calculatePlatingCost(null as any, 100)).toBe(0);
+    expect(calculatePlatingCost(undefined as any, 100)).toBe(0);
+  });
+
+  it('should handle invalid plating price gracefully', () => {
+    const invalidPlating = { ...mockPlatingOption, price: -1 };
+    expect(calculatePlatingCost(invalidPlating, 100)).toBe(0);
+
+    const nanPlating = { ...mockPlatingOption, price: NaN };
+    expect(calculatePlatingCost(nanPlating, 100)).toBe(0);
+  });
+
+  it('should handle invalid quantity gracefully', () => {
+    expect(calculatePlatingCost(mockPlatingOption, 0)).toBe(0);
+    expect(calculatePlatingCost(mockPlatingOption, -100)).toBe(0);
+    expect(calculatePlatingCost(mockPlatingOption, NaN)).toBe(0);
   });
 });
 
@@ -220,31 +272,33 @@ describe('calculateRushFee', () => {
     const setupFee = 100;
     const backingCost = 35;
     const packagingCost = 125;
-    const result = calculateRushFee(basePrice, setupFee, backingCost, packagingCost);
-    expect(result).toBe(102); // (250 + 100 + 35 + 125) * 0.20 = 102
+    const platingCost = 0;
+    const result = calculateRushFee(basePrice, setupFee, platingCost, backingCost, packagingCost);
+    expect(result).toBe(102); // (250 + 100 + 0 + 35 + 125) * 0.20 = 102
   });
 
   it('should handle zero values', () => {
-    const result = calculateRushFee(100, 0, 0, 0);
+    const result = calculateRushFee(100, 0, 0, 0, 0);
     expect(result).toBe(20); // 100 * 0.20
   });
 
   it('should handle invalid inputs gracefully', () => {
-    expect(calculateRushFee(NaN, 0, 0, 0)).toBe(0);
-    expect(calculateRushFee(100, -50, 0, 0)).toBe(0);
-    expect(calculateRushFee(100, 0, Infinity, 0)).toBe(0);
-    expect(calculateRushFee(100, 0, 0, null as any)).toBe(0);
+    expect(calculateRushFee(NaN, 0, 0, 0, 0)).toBe(0);
+    expect(calculateRushFee(100, -50, 0, 0, 0)).toBe(0);
+    expect(calculateRushFee(100, 0, Infinity, 0, 0)).toBe(0);
+    expect(calculateRushFee(100, 0, 0, null as any, 0)).toBe(0);
   });
 
   it('should handle all invalid inputs', () => {
-    expect(calculateRushFee(-100, -50, -25, -10)).toBe(0);
-    expect(calculateRushFee(NaN, NaN, NaN, NaN)).toBe(0);
+    expect(calculateRushFee(-100, -50, -25, -10, -5)).toBe(0);
+    expect(calculateRushFee(NaN, NaN, NaN, NaN, NaN)).toBe(0);
   });
 });
 
 describe('calculatePriceBreakdown', () => {
   const mockOrderSelections: OrderSelections = {
-    platingType: mockPlatingType,
+    productionMethod: mockProductionMethod,
+    platingType: mockPlatingOptionFree,
     size: '1.00',
     quantity: 100,
     backing: mockBackingPaid,
@@ -257,10 +311,11 @@ describe('calculatePriceBreakdown', () => {
 
     expect(result.basePrice).toBe(250); // 2.50 * 100
     expect(result.setupFee).toBe(0);
+    expect(result.platingCost).toBe(0); // Free plating
     expect(result.backingCost).toBe(35); // 0.35 * 100
     expect(result.packagingCost).toBe(125); // 1.25 * 100
     expect(result.rushFee).toBe(0);
-    expect(result.total).toBe(410); // 250 + 0 + 35 + 125
+    expect(result.total).toBe(410); // 250 + 0 + 0 + 35 + 125
     expect(result.unitPrice).toBe(2.50);
   });
 
@@ -270,23 +325,26 @@ describe('calculatePriceBreakdown', () => {
 
     expect(result.basePrice).toBe(250);
     expect(result.setupFee).toBe(0);
+    expect(result.platingCost).toBe(0);
     expect(result.backingCost).toBe(35);
     expect(result.packagingCost).toBe(125);
-    expect(result.rushFee).toBe(82); // (250 + 0 + 35 + 125) * 0.20
-    expect(result.total).toBe(492); // 250 + 0 + 35 + 125 + 82
+    expect(result.rushFee).toBe(82); // (250 + 0 + 0 + 35 + 125) * 0.20
+    expect(result.total).toBe(492); // 250 + 0 + 0 + 35 + 125 + 82
   });
 
   it('should include setup fee in calculations', () => {
     const selectionsWithSetup = {
       ...mockOrderSelections,
-      platingType: mockPlatingTypeWithSetup,
+      productionMethod: mockProductionMethodWithSetup,
+      platingType: mockPlatingOption, // Use paid plating
       rushOrder: true
     };
     const result = calculatePriceBreakdown(selectionsWithSetup);
 
     expect(result.setupFee).toBe(100);
-    expect(result.rushFee).toBe(92); // (200 + 100 + 35 + 125) * 0.20 = 92
-    expect(result.total).toBe(552); // 200 + 100 + 35 + 125 + 92
+    expect(result.platingCost).toBe(60); // 0.60 * 100
+    expect(result.rushFee).toBe(102); // (200 + 100 + 60 + 35 + 125) * 0.20 = 104
+    expect(result.total).toBe(622); // 200 + 100 + 60 + 35 + 125 + 102
   });
 });
 
@@ -335,8 +393,8 @@ describe('formatPrice', () => {
   });
 });
 
-describe('validatePlatingType', () => {
-  const validPlatingType: PlatingType = {
+describe('validateProductionMethod', () => {
+  const validProductionMethod: ProductionMethod = {
     id: 'test',
     name: 'Test',
     pricing: {
@@ -349,28 +407,28 @@ describe('validatePlatingType', () => {
     }
   };
 
-  it('should validate complete plating type', () => {
-    expect(validatePlatingType(validPlatingType)).toBe(true);
+  it('should validate complete production method', () => {
+    expect(validateProductionMethod(validProductionMethod)).toBe(true);
   });
 
-  it('should reject plating type without id', () => {
-    const invalid = { ...validPlatingType, id: '' };
-    expect(validatePlatingType(invalid)).toBe(false);
+  it('should reject production method without id', () => {
+    const invalid = { ...validProductionMethod, id: '' };
+    expect(validateProductionMethod(invalid)).toBe(false);
   });
 
-  it('should reject plating type without name', () => {
-    const invalid = { ...validPlatingType, name: '' };
-    expect(validatePlatingType(invalid)).toBe(false);
+  it('should reject production method without name', () => {
+    const invalid = { ...validProductionMethod, name: '' };
+    expect(validateProductionMethod(invalid)).toBe(false);
   });
 
-  it('should reject plating type with missing size', () => {
-    const invalid = { ...validPlatingType };
+  it('should reject production method with missing size', () => {
+    const invalid = { ...validProductionMethod };
     delete invalid.pricing['1.00'];
-    expect(validatePlatingType(invalid)).toBe(false);
+    expect(validateProductionMethod(invalid)).toBe(false);
   });
 
-  it('should reject plating type with invalid price', () => {
-    const invalid: PlatingType = {
+  it('should reject production method with invalid price', () => {
+    const invalid: ProductionMethod = {
       id: 'test',
       name: 'Test',
       pricing: {
@@ -382,7 +440,29 @@ describe('validatePlatingType', () => {
         '2.00': { 100: 1, 200: 1, 300: 1, 500: 1, 750: 1, 1000: 1, 2000: 1 }
       }
     };
-    expect(validatePlatingType(invalid)).toBe(false);
+    expect(validateProductionMethod(invalid)).toBe(false);
+  });
+});
+
+describe('validatePlatingOption', () => {
+  it('should validate valid plating option', () => {
+    expect(validatePlatingOption(mockPlatingOption)).toBe(true);
+    expect(validatePlatingOption(mockPlatingOptionFree)).toBe(true);
+  });
+
+  it('should reject plating option without id', () => {
+    const invalid = { ...mockPlatingOption, id: '' };
+    expect(validatePlatingOption(invalid)).toBe(false);
+  });
+
+  it('should reject plating option without name', () => {
+    const invalid = { ...mockPlatingOption, name: '' };
+    expect(validatePlatingOption(invalid)).toBe(false);
+  });
+
+  it('should reject plating option with negative price', () => {
+    const invalid = { ...mockPlatingOption, price: -1 };
+    expect(validatePlatingOption(invalid)).toBe(false);
   });
 });
 
@@ -416,7 +496,7 @@ describe('validatePackagingOption', () => {
 });
 
 describe('validateOrderSelections', () => {
-  const validPlatingTypeForValidation: PlatingType = {
+  const validProductionMethodForValidation: ProductionMethod = {
     id: 'test',
     name: 'Test',
     pricing: {
@@ -430,7 +510,8 @@ describe('validateOrderSelections', () => {
   };
 
   const validSelections: OrderSelections = {
-    platingType: validPlatingTypeForValidation,
+    productionMethod: validProductionMethodForValidation,
+    platingType: mockPlatingOptionFree,
     size: '1.00',
     quantity: 100,
     backing: mockBackingFree,
@@ -441,6 +522,13 @@ describe('validateOrderSelections', () => {
   it('should validate complete order selections', () => {
     const errors = validateOrderSelections(validSelections);
     expect(errors).toHaveLength(0);
+  });
+
+  it('should detect missing production method', () => {
+    const invalid = { ...validSelections };
+    delete (invalid as any).productionMethod;
+    const errors = validateOrderSelections(invalid);
+    expect(errors).toContain('Production method is required');
   });
 
   it('should detect missing plating type', () => {
@@ -478,7 +566,7 @@ describe('validateOrderSelections', () => {
 });
 
 describe('isOrderComplete', () => {
-  const validPlatingTypeForValidation: PlatingType = {
+  const validProductionMethodForValidation: ProductionMethod = {
     id: 'test',
     name: 'Test',
     pricing: {
@@ -492,7 +580,8 @@ describe('isOrderComplete', () => {
   };
 
   const validSelections: OrderSelections = {
-    platingType: validPlatingTypeForValidation,
+    productionMethod: validProductionMethodForValidation,
+    platingType: mockPlatingOptionFree,
     size: '1.00',
     quantity: 100,
     backing: mockBackingFree,
@@ -512,13 +601,15 @@ describe('isOrderComplete', () => {
 });
 
 describe('validatePricingData', () => {
-  const validPlatingTypes = [mockPlatingType];
+  const validProductionMethods = [mockProductionMethod];
+  const validPlatingOptions = [mockPlatingOption, mockPlatingOptionFree];
   const validBackingOptions = [mockBackingFree, mockBackingPaid];
   const validPackagingOptions = [mockPackagingFree, mockPackagingPaid];
 
   it('should validate complete pricing data', () => {
     const result = validatePricingData(
-      validPlatingTypes,
+      validProductionMethods,
+      validPlatingOptions,
       validBackingOptions,
       validPackagingOptions
     );
@@ -526,20 +617,26 @@ describe('validatePricingData', () => {
     expect(result.errors.length).toBeGreaterThan(0);
   });
 
-  it('should detect empty plating types array', () => {
-    const result = validatePricingData([], validBackingOptions, validPackagingOptions);
+  it('should detect empty production methods array', () => {
+    const result = validatePricingData([], validPlatingOptions, validBackingOptions, validPackagingOptions);
     expect(result.isValid).toBe(false);
-    expect(result.errors).toContain('Plating types array is empty or invalid');
+    expect(result.errors).toContain('Production methods array is empty or invalid');
+  });
+
+  it('should detect empty plating options array', () => {
+    const result = validatePricingData(validProductionMethods, [], validBackingOptions, validPackagingOptions);
+    expect(result.isValid).toBe(false);
+    expect(result.errors).toContain('Plating options array is empty or invalid');
   });
 
   it('should detect empty backing options array', () => {
-    const result = validatePricingData(validPlatingTypes, [], validPackagingOptions);
+    const result = validatePricingData(validProductionMethods, validPlatingOptions, [], validPackagingOptions);
     expect(result.isValid).toBe(false);
     expect(result.errors).toContain('Backing options array is empty or invalid');
   });
 
   it('should detect empty packaging options array', () => {
-    const result = validatePricingData(validPlatingTypes, validBackingOptions, []);
+    const result = validatePricingData(validProductionMethods, validPlatingOptions, validBackingOptions, []);
     expect(result.isValid).toBe(false);
     expect(result.errors).toContain('Packaging options array is empty or invalid');
   });
@@ -559,14 +656,14 @@ describe('Edge cases and mathematical accuracy', () => {
 
   it('should maintain precision in rush fee calculations', () => {
     const basePrice = 333.33;
-    const rushFee = calculateRushFee(basePrice, 0, 0, 0);
+    const rushFee = calculateRushFee(basePrice, 0, 0, 0, 0);
     expect(rushFee).toBe(66.666); // 333.33 * 0.20
   });
 
   it('should handle zero values in all calculations', () => {
     const zeroBackingCost = calculateBackingCost(mockBackingFree, 100);
     const zeroPackagingCost = calculatePackagingCost(mockPackagingFree, 100);
-    const zeroSetupFee = calculateSetupFee(mockPlatingType);
+    const zeroSetupFee = calculateSetupFee(mockProductionMethod);
 
     expect(zeroBackingCost).toBe(0);
     expect(zeroPackagingCost).toBe(0);
@@ -617,7 +714,7 @@ describe('Error Handling Integration', () => {
       { id: 'valid', name: 'Valid', pricing: { '1.00': { 100: -1 } } }
     ] as any[];
 
-    const validation = validatePricingData(corruptedPlatingTypes, [], []);
+    const validation = validatePricingData(corruptedPlatingTypes, [], [], []);
     expect(validation.isValid).toBe(false);
     expect(validation.errors.length).toBeGreaterThan(0);
   });

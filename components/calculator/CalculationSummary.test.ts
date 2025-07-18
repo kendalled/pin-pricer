@@ -7,16 +7,18 @@ describe('CalculationSummary', () => {
   const mockBreakdown: PriceBreakdown = {
     basePrice: 100.00,
     setupFee: 50.00,
+    platingCost: 10.00,
     backingCost: 20.00,
     packagingCost: 15.00,
-    rushFee: 37.00, // 20% of (100 + 50 + 20 + 15) = 37
-    total: 222.00,
+    rushFee: 39.00, // 20% of (100 + 50 + 10 + 20 + 15) = 39
+    total: 234.00,
     unitPrice: 1.00
   };
 
   const mockBreakdownWithoutOptionalFees: PriceBreakdown = {
     basePrice: 100.00,
     setupFee: 0,
+    platingCost: 0,
     backingCost: 0,
     packagingCost: 0,
     rushFee: 0,
@@ -27,6 +29,7 @@ describe('CalculationSummary', () => {
   const mockBreakdownWithSetupFeeOnly: PriceBreakdown = {
     basePrice: 100.00,
     setupFee: 100.00, // Offset Printed setup fee
+    platingCost: 0,
     backingCost: 0,
     packagingCost: 0,
     rushFee: 0,
@@ -58,14 +61,16 @@ describe('CalculationSummary', () => {
     expect(wrapper.text()).toContain('$100.00');
     expect(wrapper.text()).toContain('Setup Fee');
     expect(wrapper.text()).toContain('$50.00');
+    expect(wrapper.text()).toContain('Plating');
+    expect(wrapper.text()).toContain('$10.00');
     expect(wrapper.text()).toContain('Backing');
     expect(wrapper.text()).toContain('$20.00');
     expect(wrapper.text()).toContain('Packaging');
     expect(wrapper.text()).toContain('$15.00');
     expect(wrapper.text()).toContain('Rush Fee (20%)');
-    expect(wrapper.text()).toContain('$37.00');
+    expect(wrapper.text()).toContain('$39.00');
     expect(wrapper.text()).toContain('Total');
-    expect(wrapper.text()).toContain('$222.00');
+    expect(wrapper.text()).toContain('$234.00');
   });
 
   it('hides zero-cost line items', () => {
@@ -106,10 +111,11 @@ describe('CalculationSummary', () => {
     const breakdownWithDecimals: PriceBreakdown = {
       basePrice: 123.45,
       setupFee: 67.89,
+      platingCost: 8.90,
       backingCost: 12.34,
       packagingCost: 5.67,
-      rushFee: 41.87,
-      total: 251.22,
+      rushFee: 43.65,
+      total: 261.90,
       unitPrice: 1.23
     };
 
@@ -123,10 +129,11 @@ describe('CalculationSummary', () => {
     // Check currency formatting
     expect(wrapper.text()).toContain('$123.45');
     expect(wrapper.text()).toContain('$67.89');
+    expect(wrapper.text()).toContain('$8.90');
     expect(wrapper.text()).toContain('$12.34');
     expect(wrapper.text()).toContain('$5.67');
-    expect(wrapper.text()).toContain('$41.87');
-    expect(wrapper.text()).toContain('$251.22');
+    expect(wrapper.text()).toContain('$43.65');
+    expect(wrapper.text()).toContain('$261.90');
     expect(wrapper.text()).toContain('$1.23 each');
   });
 
@@ -162,6 +169,7 @@ describe('CalculationSummary', () => {
     const breakdownWithZeroUnit: PriceBreakdown = {
       basePrice: 0,
       setupFee: 100,
+      platingCost: 0,
       backingCost: 0,
       packagingCost: 0,
       rushFee: 0,

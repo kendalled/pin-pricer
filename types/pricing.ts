@@ -4,11 +4,18 @@ export interface PricingMatrix {
   };
 }
 
-export interface PlatingType {
+export interface ProductionMethod {
   id: string;
   name: string;
   setupFee?: number;
   pricing: PricingMatrix;
+}
+
+export interface PlatingOption {
+  id: string;
+  name: string;
+  price: number;
+  isFree: boolean;
 }
 
 export interface BackingOption {
@@ -26,7 +33,8 @@ export interface PackagingOption {
 }
 
 export interface OrderSelections {
-  platingType: PlatingType;
+  productionMethod: ProductionMethod;
+  platingType: PlatingOption;
   size: string;
   quantity: number;
   backing: BackingOption;
@@ -37,9 +45,13 @@ export interface OrderSelections {
 export interface PriceBreakdown {
   basePrice: number;
   setupFee: number;
+  platingCost: number;
   backingCost: number;
   packagingCost: number;
   rushFee: number;
   total: number;
   unitPrice: number;
 }
+
+// Legacy type alias for backward compatibility during transition
+export type PlatingType = ProductionMethod;

@@ -1,17 +1,17 @@
-import type { PlatingType, BackingOption, PackagingOption, OrderSelections, PriceBreakdown } from '~/types/pricing';
+import type { ProductionMethod, PlatingOption, BackingOption, PackagingOption, OrderSelections, PriceBreakdown } from '~/types/pricing';
 
 /**
- * Calculate the base price for a given plating type, size, and quantity
+ * Calculate the base price for a given production method, size, and quantity
  */
 export function calculateBasePrice(
-  platingType: PlatingType,
+  productionMethod: ProductionMethod,
   size: string,
   quantity: number
 ): number {
   try {
     // Validate inputs
-    if (!platingType || !platingType.pricing) {
-      throw new Error('Invalid plating type provided');
+    if (!productionMethod || !productionMethod.pricing) {
+      throw new Error('Invalid production method provided');
     }
     if (!size || typeof size !== 'string') {
       throw new Error('Invalid size provided');
@@ -20,9 +20,9 @@ export function calculateBasePrice(
       throw new Error('Invalid quantity provided');
     }
 
-    const unitPrice = platingType.pricing[size]?.[quantity];
+    const unitPrice = productionMethod.pricing[size]?.[quantity];
     if (unitPrice === undefined || typeof unitPrice !== 'number' || unitPrice <= 0) {
-      throw new Error(`Invalid size "${size}" or quantity "${quantity}" for plating type "${platingType.name}"`);
+      throw new Error(`Invalid size "${size}" or quantity "${quantity}" for production method "${productionMethod.name}"`);
     }
     
     const basePrice = unitPrice * quantity;
@@ -38,17 +38,17 @@ export function calculateBasePrice(
 }
 
 /**
- * Get the unit price for a given plating type, size, and quantity
+ * Get the unit price for a given production method, size, and quantity
  */
 export function getUnitPrice(
-  platingType: PlatingType,
+  productionMethod: ProductionMethod,
   size: string,
   quantity: number
 ): number {
   try {
     // Validate inputs
-    if (!platingType || !platingType.pricing) {
-      throw new Error('Invalid plating type provided');
+    if (!productionMethod || !productionMethod.pricing) {
+      throw new Error('Invalid production method provided');
     }
     if (!size || typeof size !== 'string') {
       throw new Error('Invalid size provided');
@@ -57,9 +57,9 @@ export function getUnitPrice(
       throw new Error('Invalid quantity provided');
     }
 
-    const unitPrice = platingType.pricing[size]?.[quantity];
+    const unitPrice = productionMethod.pricing[size]?.[quantity];
     if (unitPrice === undefined || typeof unitPrice !== 'number' || unitPrice <= 0) {
-      throw new Error(`Invalid size "${size}" or quantity "${quantity}" for plating type "${platingType.name}"`);
+      throw new Error(`Invalid size "${size}" or quantity "${quantity}" for production method "${productionMethod.name}"`);
     }
     return unitPrice;
   } catch (error) {
@@ -69,16 +69,16 @@ export function getUnitPrice(
 }
 
 /**
- * Calculate the setup fee for a plating type
+ * Calculate the setup fee for a production method
  */
-export function calculateSetupFee(platingType: PlatingType): number {
+export function calculateSetupFee(productionMethod: ProductionMethod): number {
   try {
-    if (!platingType) {
-      console.warn('No plating type provided for setup fee calculation');
+    if (!productionMethod) {
+      console.warn('No production method provided for setup fee calculation');
       return 0;
     }
     
-    const setupFee = platingType.setupFee || 0;
+    const setupFee = productionMethod.setupFee || 0;
     if (typeof setupFee !== 'number' || isNaN(setupFee) || setupFee < 0) {
       console.warn('Invalid setup fee value:', setupFee);
       return 0;
@@ -87,6 +87,42 @@ export function calculateSetupFee(platingType: PlatingType): number {
     return setupFee;
   } catch (error) {
     console.error('Error calculating setup fee:', error);
+    return 0;
+  }
+}
+
+/**
+ * Calculate the total cost for plating modifications
+ */
+export function calculatePlatingCost(
+  plating: PlatingOption,
+  quantity: number
+): number {
+  try {
+    if (!plating) {
+      console.warn('No plating option provided');
+      return 0;
+    }
+    
+    if (typeof plating.price !== 'number' || isNaN(plating.price) || plating.price < 0) {
+      console.warn('Invalid plating price:', plating.price);
+      return 0;
+    }
+    
+    if (typeof quantity !== 'number' || isNaN(quantity) || quantity <= 0) {
+      console.warn('Invalid quantity for plating cost:', quantity);
+      return 0;
+    }
+    
+    const cost = plating.price * quantity;
+    if (isNaN(cost) || !isFinite(cost) || cost < 0) {
+      console.warn('Invalid calculated plating cost:', cost);
+      return 0;
+    }
+    
+    return cost;
+  } catch (error) {
+    console.error('Error calculating plating cost:', error);
     return 0;
   }
 }
@@ -169,12 +205,13 @@ export function calculatePackagingCost(
 export function calculateRushFee(
   basePrice: number,
   setupFee: number,
+  platingCost: number,
   backingCost: number,
   packagingCost: number
 ): number {
   try {
     // Validate all input values
-    const values = [basePrice, setupFee, backingCost, packagingCost];
+    const values = [basePrice, setupFee, platingCost, backingCost, packagingCost];
     for (const value of values) {
       if (typeof value !== 'number' || isNaN(value) || !isFinite(value) || value < 0) {
         console.warn('Invalid value for rush fee calculation:', value);
@@ -182,7 +219,7 @@ export function calculateRushFee(
       }
     }
     
-    const subtotal = basePrice + setupFee + backingCost + packagingCost;
+    const subtotal = basePrice + setupFee + platingCost + backingCost + packagingCost;
     if (isNaN(subtotal) || !isFinite(subtotal) || subtotal < 0) {
       console.warn('Invalid subtotal for rush fee calculation:', subtotal);
       return 0;
@@ -212,29 +249,30 @@ export function calculatePriceBreakdown(selections: OrderSelections): PriceBreak
     }
 
     const basePrice = calculateBasePrice(
-      selections.platingType,
+      selections.productionMethod,
       selections.size,
       selections.quantity
     );
     
     const unitPrice = getUnitPrice(
-      selections.platingType,
+      selections.productionMethod,
       selections.size,
       selections.quantity
     );
     
-    const setupFee = calculateSetupFee(selections.platingType);
+    const setupFee = calculateSetupFee(selections.productionMethod);
+    const platingCost = calculatePlatingCost(selections.platingType, selections.quantity);
     const backingCost = calculateBackingCost(selections.backing, selections.quantity);
     const packagingCost = calculatePackagingCost(selections.packaging, selections.quantity);
     
     const rushFee = selections.rushOrder 
-      ? calculateRushFee(basePrice, setupFee, backingCost, packagingCost)
+      ? calculateRushFee(basePrice, setupFee, platingCost, backingCost, packagingCost)
       : 0;
     
-    const total = basePrice + setupFee + backingCost + packagingCost + rushFee;
+    const total = basePrice + setupFee + platingCost + backingCost + packagingCost + rushFee;
     
     // Validate all calculated values
-    const values = [basePrice, unitPrice, setupFee, backingCost, packagingCost, rushFee, total];
+    const values = [basePrice, unitPrice, setupFee, platingCost, backingCost, packagingCost, rushFee, total];
     for (const value of values) {
       if (typeof value !== 'number' || isNaN(value) || !isFinite(value) || value < 0) {
         throw new Error(`Invalid calculated value: ${value}`);
@@ -244,6 +282,7 @@ export function calculatePriceBreakdown(selections: OrderSelections): PriceBreak
     return {
       basePrice,
       setupFee,
+      platingCost,
       backingCost,
       packagingCost,
       rushFee,
@@ -256,6 +295,7 @@ export function calculatePriceBreakdown(selections: OrderSelections): PriceBreak
     return {
       basePrice: 0,
       setupFee: 0,
+      platingCost: 0,
       backingCost: 0,
       packagingCost: 0,
       rushFee: 0,
@@ -317,10 +357,10 @@ export function formatPrice(amount: number): string {
 }
 
 /**
- * Validate that a plating type has complete pricing data
+ * Validate that a production method has complete pricing data
  */
-export function validatePlatingType(platingType: PlatingType): boolean {
-  if (!platingType.id || !platingType.name || !platingType.pricing) {
+export function validateProductionMethod(productionMethod: ProductionMethod): boolean {
+  if (!productionMethod.id || !productionMethod.name || !productionMethod.pricing) {
     return false;
   }
   
@@ -329,19 +369,32 @@ export function validatePlatingType(platingType: PlatingType): boolean {
   const expectedQuantities = [100, 200, 300, 500, 750, 1000, 2000];
   
   for (const size of expectedSizes) {
-    if (!platingType.pricing[size]) {
+    if (!productionMethod.pricing[size]) {
       return false;
     }
     
     for (const quantity of expectedQuantities) {
-      if (typeof platingType.pricing[size][quantity] !== 'number' || 
-          platingType.pricing[size][quantity] <= 0) {
+      if (typeof productionMethod.pricing[size][quantity] !== 'number' || 
+          productionMethod.pricing[size][quantity] <= 0) {
         return false;
       }
     }
   }
   
   return true;
+}
+
+/**
+ * Validate that a plating option has valid data
+ */
+export function validatePlatingOption(plating: PlatingOption): boolean {
+  return !!(
+    plating.id &&
+    plating.name &&
+    typeof plating.price === 'number' &&
+    plating.price >= 0 &&
+    typeof plating.isFree === 'boolean'
+  );
 }
 
 /**
@@ -376,9 +429,15 @@ export function validatePackagingOption(packaging: PackagingOption): boolean {
 export function validateOrderSelections(selections: Partial<OrderSelections>): string[] {
   const errors: string[] = [];
   
+  if (!selections.productionMethod) {
+    errors.push('Production method is required');
+  } else if (!validateProductionMethod(selections.productionMethod)) {
+    errors.push('Invalid production method data');
+  }
+  
   if (!selections.platingType) {
     errors.push('Plating type is required');
-  } else if (!validatePlatingType(selections.platingType)) {
+  } else if (!validatePlatingOption(selections.platingType)) {
     errors.push('Invalid plating type data');
   }
   
@@ -424,19 +483,31 @@ export function isOrderComplete(selections: Partial<OrderSelections>): boolean {
  * Validate pricing data integrity for edge cases
  */
 export function validatePricingData(
-  platingTypes: PlatingType[],
+  productionMethods: ProductionMethod[],
+  platingOptions: PlatingOption[],
   backingOptions: BackingOption[],
   packagingOptions: PackagingOption[]
 ): { isValid: boolean; errors: string[] } {
   const errors: string[] = [];
   
-  // Validate plating types
-  if (!Array.isArray(platingTypes) || platingTypes.length === 0) {
-    errors.push('Plating types array is empty or invalid');
+  // Validate production methods
+  if (!Array.isArray(productionMethods) || productionMethods.length === 0) {
+    errors.push('Production methods array is empty or invalid');
   } else {
-    platingTypes.forEach((platingType, index) => {
-      if (!validatePlatingType(platingType)) {
-        errors.push(`Invalid plating type at index ${index}: ${platingType.name || 'Unknown'}`);
+    productionMethods.forEach((productionMethod, index) => {
+      if (!validateProductionMethod(productionMethod)) {
+        errors.push(`Invalid production method at index ${index}: ${productionMethod.name || 'Unknown'}`);
+      }
+    });
+  }
+  
+  // Validate plating options
+  if (!Array.isArray(platingOptions) || platingOptions.length === 0) {
+    errors.push('Plating options array is empty or invalid');
+  } else {
+    platingOptions.forEach((plating, index) => {
+      if (!validatePlatingOption(plating)) {
+        errors.push(`Invalid plating option at index ${index}: ${plating.name || 'Unknown'}`);
       }
     });
   }

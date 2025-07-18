@@ -10,6 +10,8 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
+
 interface Props {
   variant?: 'default' | 'success' | 'warning' | 'info' | 'error'
   size?: 'sm' | 'md' | 'lg'

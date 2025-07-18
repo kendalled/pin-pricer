@@ -63,6 +63,15 @@
         <span class="font-medium text-sm xs:text-base">{{ safeFormatCurrency(breakdown.setupFee) }}</span>
       </div>
       
+      <!-- Plating Cost (only show if applicable) -->
+      <div 
+        v-if="breakdown.platingCost > 0" 
+        class="flex flex-col xs:flex-row xs:justify-between xs:items-center gap-1 xs:gap-2 text-slate-200 high-contrast:text-slate-100"
+      >
+        <span class="text-sm xs:text-base">Plating</span>
+        <span class="font-medium text-sm xs:text-base">{{ safeFormatCurrency(breakdown.platingCost) }}</span>
+      </div>
+      
       <!-- Backing Cost (only show if applicable) -->
       <div 
         v-if="breakdown.backingCost > 0" 
@@ -126,10 +135,10 @@ const props = withDefaults(defineProps<Props>(), {
 const hasInvalidBreakdown = computed(() => {
   if (!props.breakdown) return false;
   
-  const { basePrice, setupFee, backingCost, packagingCost, rushFee, total, unitPrice } = props.breakdown;
+  const { basePrice, setupFee, platingCost, backingCost, packagingCost, rushFee, total, unitPrice } = props.breakdown;
   
   // Check for invalid numbers
-  const values = [basePrice, setupFee, backingCost, packagingCost, rushFee, total, unitPrice];
+  const values = [basePrice, setupFee, platingCost, backingCost, packagingCost, rushFee, total, unitPrice];
   return values.some(value => 
     typeof value !== 'number' || 
     isNaN(value) || 
