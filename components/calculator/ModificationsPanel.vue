@@ -121,7 +121,7 @@
     <!-- Rush Order Toggle -->
     <div>
       <div 
-        class="flex flex-col xs:flex-row xs:items-center xs:justify-between gap-4 p-4 xs:p-6 bg-slate-800 border border-slate-600 rounded-xl high-contrast:bg-slate-950 high-contrast:border-slate-300"
+        class="flex items-center justify-between gap-4 p-4 xs:p-6 bg-slate-800 border border-slate-600 rounded-xl high-contrast:bg-slate-950 high-contrast:border-slate-300"
         role="group"
         aria-labelledby="rush-order-heading"
       >
@@ -133,7 +133,7 @@
             Add 20% to total price for expedited processing
           </p>
         </div>
-        <label class="relative inline-flex items-center cursor-pointer">
+        <label class="relative inline-flex items-center cursor-pointer flex-shrink-0">
           <input
             type="checkbox"
             :checked="rushOrder"
@@ -149,7 +149,7 @@
               'peer-focus-visible:ring-3 peer-focus-visible:ring-blue-500 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-slate-900',
               'reduced-motion:transition-none',
               rushOrder
-                ? 'bg-blue-550 high-contrast:bg-blue-700'
+                ? 'bg-green-600 high-contrast:bg-green-700'
                 : 'bg-slate-600 high-contrast:bg-slate-700'
             ]"
           >
