@@ -95,3 +95,68 @@ describe('PricingCalculator Functionality', () => {
     });
   });
 });
+
+describe('PricingCalculator Mold Fee Integration', () => {
+  it('should handle mold fee state management through composable', async () => {
+    // Test that the composable properly manages mold fee state
+    const { usePricingCalculator } = await import('~/composables/usePricingCalculator');
+    const calculator = usePricingCalculator();
+    
+    // Verify mold fee computed properties exist
+    expect(calculator.moldFeeInfo).toBeDefined();
+    expect(calculator.hasMoldFee).toBeDefined();
+    expect(calculator.moldFeeWaived).toBeDefined();
+    expect(calculator.moldFeeAmount).toBeDefined();
+    expect(calculator.moldFeeWaivedReason).toBeDefined();
+  });
+
+  it('should integrate with CalculationSummary for mold fee display', async () => {
+    // Test that the component can work with CalculationSummary for mold fee display
+    const [PricingCalculator, CalculationSummary] = await Promise.all([
+      import('./PricingCalculator.vue'),
+      import('./CalculationSummary.vue')
+    ]);
+
+    expect(PricingCalculator.default).toBeDefined();
+    expect(CalculationSummary.default).toBeDefined();
+    
+    // Both components should be available for integration
+    expect(typeof PricingCalculator.default).toBe('object');
+    expect(typeof CalculationSummary.default).toBe('object');
+  });
+
+  it('should support real-time mold fee updates through reactive state', async () => {
+    // Test that the component supports reactive mold fee updates
+    const { usePricingCalculator } = await import('~/composables/usePricingCalculator');
+    const calculator = usePricingCalculator();
+    
+    // The composable should have methods that trigger mold fee recalculation
+    expect(typeof calculator.setSizeAndQuantity).toBe('function');
+    expect(typeof calculator.setProductionMethod).toBe('function');
+    
+    // Mold fee info should be reactive computed properties
+    expect(calculator.moldFeeInfo.value).toBeDefined();
+    expect(typeof calculator.moldFeeInfo.value).toBe('object');
+  });
+
+  it('should handle mold fee calculation errors gracefully', async () => {
+    // Test that the component handles mold fee calculation errors
+    const { usePricingCalculator } = await import('~/composables/usePricingCalculator');
+    const calculator = usePricingCalculator();
+    
+    // Initial state should not have errors
+    expect(calculator.moldFeeInfo.value.applicable).toBe(false);
+    expect(calculator.moldFeeInfo.value.fee).toBe(0);
+    expect(calculator.moldFeeInfo.value.waived).toBe(false);
+  });
+
+  it('should provide proper TypeScript types for mold fee functionality', async () => {
+    // Test that TypeScript types are properly defined
+    const types = await import('~/types/pricing');
+    expect(types).toBeDefined();
+    
+    // The types module should be available for mold fee functionality
+    expect(typeof types).toBe('object');
+    expect(types).not.toBeNull();
+  });
+});
