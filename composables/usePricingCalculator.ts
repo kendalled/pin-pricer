@@ -15,6 +15,7 @@ import {
 } from '~/data/pricing';
 import { 
   calculatePriceBreakdown,
+  calculateMoldFee,
   validateOrderSelections,
   isOrderComplete,
   validatePricingData
@@ -103,6 +104,52 @@ export function usePricingCalculator() {
     } finally {
       isCalculating.value = false;
     }
+  });
+
+  // Mold fee specific computed properties for display logic
+  const moldFeeInfo = computed(() => {
+    if (!state.selectedSize || !state.selectedQuantity) {
+      return {
+        applicable: false,
+        fee: 0,
+        waived: false,
+        reason: null
+      };
+    }
+
+    try {
+      const result = calculateMoldFee(state.selectedSize, state.selectedQuantity);
+      return {
+        applicable: true,
+        fee: result.fee,
+        waived: result.waived,
+        reason: result.reason || null
+      };
+    } catch (error) {
+      console.error('Error calculating mold fee info:', error);
+      return {
+        applicable: false,
+        fee: 0,
+        waived: false,
+        reason: 'Error calculating mold fee'
+      };
+    }
+  });
+
+  const hasMoldFee = computed(() => {
+    return moldFeeInfo.value.applicable && moldFeeInfo.value.fee > 0 && !moldFeeInfo.value.waived;
+  });
+
+  const moldFeeWaived = computed(() => {
+    return moldFeeInfo.value.applicable && moldFeeInfo.value.waived;
+  });
+
+  const moldFeeAmount = computed(() => {
+    return moldFeeInfo.value.fee;
+  });
+
+  const moldFeeWaivedReason = computed(() => {
+    return moldFeeInfo.value.reason;
   });
 
   // Validation computed property
@@ -274,6 +321,13 @@ export function usePricingCalculator() {
     validationStatus,
     getAvailableSizes,
     getAvailableQuantities,
+    
+    // Mold fee computed properties
+    moldFeeInfo: readonly(moldFeeInfo),
+    hasMoldFee: readonly(hasMoldFee),
+    moldFeeWaived: readonly(moldFeeWaived),
+    moldFeeAmount: readonly(moldFeeAmount),
+    moldFeeWaivedReason: readonly(moldFeeWaivedReason),
     
     // Methods
     setProductionMethod,

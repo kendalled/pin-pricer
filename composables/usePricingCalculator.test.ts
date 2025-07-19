@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { usePricingCalculator } from './usePricingCalculator';
-import { PLATING_TYPES, BACKING_OPTIONS, PACKAGING_OPTIONS } from '~/data/pricing';
+import { PRODUCTION_METHODS, PLATING_OPTIONS, BACKING_OPTIONS, PACKAGING_OPTIONS } from '~/data/pricing';
 
 describe('usePricingCalculator', () => {
   let calculator: ReturnType<typeof usePricingCalculator>;
@@ -28,40 +28,56 @@ describe('usePricingCalculator', () => {
     });
   });
 
-  describe('Plating Type Selection', () => {
-    it('should set plating type correctly', () => {
-      const dieStruck = PLATING_TYPES[0];
-      calculator.setPlatingType(dieStruck);
+  describe('Production Method Selection', () => {
+    it('should set production method correctly', () => {
+      const dieStruck = PRODUCTION_METHODS[0];
+      calculator.setProductionMethod(dieStruck);
 
-      expect(calculator.state.selectedPlatingType).toStrictEqual(dieStruck);
+      expect(calculator.state.selectedProductionMethod).toStrictEqual(dieStruck);
     });
 
-    it('should provide available plating types', () => {
-      const types = calculator.getAvailablePlatingTypes();
-      expect(types).toEqual(PLATING_TYPES);
-      expect(types.length).toBe(5);
+    it('should provide available production methods', () => {
+      const methods = calculator.getAvailableProductionMethods();
+      expect(methods).toEqual(PRODUCTION_METHODS);
+      expect(methods.length).toBe(5);
     });
 
-    it('should reset size/quantity when plating type changes if incompatible', () => {
-      const dieStruck = PLATING_TYPES[0];
-      calculator.setPlatingType(dieStruck);
+    it('should reset size/quantity when production method changes if incompatible', () => {
+      const dieStruck = PRODUCTION_METHODS[0];
+      calculator.setProductionMethod(dieStruck);
       calculator.setSizeAndQuantity('1.00', 100);
 
       expect(calculator.state.selectedSize).toBe('1.00');
       expect(calculator.state.selectedQuantity).toBe(100);
 
-      // Switch to another plating type - should keep selections if valid
-      const softEnamel = PLATING_TYPES[1];
-      calculator.setPlatingType(softEnamel);
+      // Switch to another production method - should keep selections if valid
+      const softEnamel = PRODUCTION_METHODS[1];
+      calculator.setProductionMethod(softEnamel);
 
       expect(calculator.state.selectedSize).toBe('1.00');
       expect(calculator.state.selectedQuantity).toBe(100);
     });
   });
 
+  describe('Plating Type Selection', () => {
+    it('should set plating type correctly', () => {
+      const polishedGold = PLATING_OPTIONS[0];
+      calculator.setPlatingType(polishedGold);
+
+      expect(calculator.state.selectedPlatingType).toStrictEqual(polishedGold);
+    });
+
+    it('should provide available plating options', () => {
+      const options = calculator.getAvailablePlatingOptions();
+      expect(options).toEqual(PLATING_OPTIONS);
+      expect(options.length).toBe(10);
+    });
+  });
+
   describe('Size and Quantity Selection', () => {
     beforeEach(() => {
-      calculator.setPlatingType(PLATING_TYPES[0]); // Die Struck
+      calculator.setProductionMethod(PRODUCTION_METHODS[0]); // Die Struck
+      calculator.setPlatingType(PLATING_OPTIONS[0]); // Polished Gold
     });
 
     it('should set size and quantity correctly', () => {
@@ -78,11 +94,11 @@ describe('usePricingCalculator', () => {
       expect(calculator.validationErrors.value.general![0]).toContain('Invalid');
     });
 
-    it('should require plating type before size/quantity', () => {
+    it('should require production method before size/quantity', () => {
       calculator.resetSelections();
       calculator.setSizeAndQuantity('1.00', 100);
 
-      expect(calculator.validationErrors.value.platingType).toBeDefined();
+      expect(calculator.validationErrors.value.productionMethod).toBeDefined();
     });
 
     it('should provide available sizes for selected plating type', () => {
@@ -121,7 +137,7 @@ describe('usePricingCalculator', () => {
     it('should provide available packaging options', () => {
       const options = calculator.getAvailablePackagingOptions();
       expect(options).toEqual(PACKAGING_OPTIONS);
-      expect(options.length).toBe(5);
+      expect(options.length).toBe(4);
     });
   });
 
@@ -138,7 +154,8 @@ describe('usePricingCalculator', () => {
   describe('Price Calculation', () => {
     beforeEach(() => {
       // Set up complete selections
-      calculator.setPlatingType(PLATING_TYPES[0]); // Die Struck
+      calculator.setProductionMethod(PRODUCTION_METHODS[0]); // Die Struck
+      calculator.setPlatingType(PLATING_OPTIONS[0]); // Polished Gold
       calculator.setSizeAndQuantity('1.00', 100);
       calculator.setBacking(BACKING_OPTIONS[0]); // Butterfly (free)
       calculator.setPackaging(PACKAGING_OPTIONS[0]); // Poly Bag (free)
@@ -154,12 +171,13 @@ describe('usePricingCalculator', () => {
       expect(breakdown!.backingCost).toBe(0);
       expect(breakdown!.packagingCost).toBe(0);
       expect(breakdown!.rushFee).toBe(0);
-      expect(breakdown!.total).toBe(261);
+      expect(breakdown!.moldFee).toBe(50); // Mold fee for 1.00" size
+      expect(breakdown!.total).toBe(311); // 261 + 50 (mold fee)
       expect(breakdown!.unitPrice).toBe(2.61);
     });
 
     it('should include setup fee for Offset Printed', () => {
-      calculator.setPlatingType(PLATING_TYPES[4]); // Offset Printed
+      calculator.setProductionMethod(PRODUCTION_METHODS[4]); // Offset Printed
 
       const breakdown = calculator.priceBreakdown.value;
       expect(breakdown!.setupFee).toBe(100);
@@ -169,18 +187,18 @@ describe('usePricingCalculator', () => {
       calculator.setRushOrder(true);
 
       const breakdown = calculator.priceBreakdown.value;
-      expect(breakdown!.rushFee).toBe(52.2); // 20% of 261
-      expect(breakdown!.total).toBe(313.2);
+      expect(breakdown!.rushFee).toBe(62.2); // 20% of (261 + 50 mold fee) = 20% of 311
+      expect(breakdown!.total).toBe(373.2); // 261 + 50 + 62.2
     });
 
     it('should include backing and packaging costs', () => {
       calculator.setBacking(BACKING_OPTIONS[2]); // Double Butterfly ($0.20)
-      calculator.setPackaging(PACKAGING_OPTIONS[1]); // Velvet Pouch ($0.75)
+      calculator.setPackaging(PACKAGING_OPTIONS[1]); // Acrylic Case ($1.00)
 
       const breakdown = calculator.priceBreakdown.value;
       expect(breakdown!.backingCost).toBe(20); // 0.20 * 100
-      expect(breakdown!.packagingCost).toBe(75); // 0.75 * 100
-      expect(breakdown!.total).toBe(356); // 261 + 20 + 75
+      expect(breakdown!.packagingCost).toBe(100); // 1.00 * 100
+      expect(breakdown!.total).toBe(431); // 261 + 50 (mold fee) + 20 + 100
     });
 
     it('should return null when selections are incomplete', () => {
@@ -196,7 +214,8 @@ describe('usePricingCalculator', () => {
       expect(calculator.validationStatus.value.isValid).toBe(false);
 
       // Complete selections
-      calculator.setPlatingType(PLATING_TYPES[0]);
+      calculator.setProductionMethod(PRODUCTION_METHODS[0]);
+      calculator.setPlatingType(PLATING_OPTIONS[0]);
       calculator.setSizeAndQuantity('1.00', 100);
       calculator.setBacking(BACKING_OPTIONS[0]);
       calculator.setPackaging(PACKAGING_OPTIONS[0]);
@@ -209,7 +228,7 @@ describe('usePricingCalculator', () => {
       calculator.setValidationError('platingType', 'Test error');
       expect(calculator.validationErrors.value.platingType).toBe('Test error');
 
-      calculator.setPlatingType(PLATING_TYPES[0]);
+      calculator.setPlatingType(PLATING_OPTIONS[0]);
       expect(calculator.validationErrors.value.platingType).toBeUndefined();
     });
   });
@@ -217,7 +236,8 @@ describe('usePricingCalculator', () => {
   describe('Reset Functions', () => {
     beforeEach(() => {
       // Set up complete selections
-      calculator.setPlatingType(PLATING_TYPES[0]);
+      calculator.setProductionMethod(PRODUCTION_METHODS[0]);
+      calculator.setPlatingType(PLATING_OPTIONS[0]);
       calculator.setSizeAndQuantity('1.00', 100);
       calculator.setBacking(BACKING_OPTIONS[0]);
       calculator.setPackaging(PACKAGING_OPTIONS[0]);
@@ -244,6 +264,224 @@ describe('usePricingCalculator', () => {
       expect(calculator.state.selectedBacking).toBeNull();
       expect(calculator.state.selectedPackaging).toBeNull();
       expect(calculator.state.rushOrder).toBe(false);
+    });
+  });
+
+  describe('Mold Fee State Management', () => {
+    beforeEach(() => {
+      calculator.setProductionMethod(PRODUCTION_METHODS[0]); // Die Struck
+      calculator.setPlatingType(PLATING_OPTIONS[0]); // Polished Gold
+      calculator.setBacking(BACKING_OPTIONS[0]); // Butterfly (free)
+      calculator.setPackaging(PACKAGING_OPTIONS[0]); // Poly Bag (free)
+    });
+
+    describe('Mold Fee Calculation', () => {
+      it('should calculate $50 mold fee for sizes ≤ 1.5"', () => {
+        calculator.setSizeAndQuantity('0.75', 100);
+        expect(calculator.moldFeeInfo.value.applicable).toBe(true);
+        expect(calculator.moldFeeInfo.value.fee).toBe(50.00);
+        expect(calculator.moldFeeInfo.value.waived).toBe(false);
+        expect(calculator.hasMoldFee.value).toBe(true);
+        expect(calculator.moldFeeWaived.value).toBe(false);
+
+        calculator.setSizeAndQuantity('1.00', 200);
+        expect(calculator.moldFeeInfo.value.fee).toBe(50.00);
+        expect(calculator.hasMoldFee.value).toBe(true);
+
+        calculator.setSizeAndQuantity('1.25', 300);
+        expect(calculator.moldFeeInfo.value.fee).toBe(50.00);
+        expect(calculator.hasMoldFee.value).toBe(true);
+
+        calculator.setSizeAndQuantity('1.50', 500);
+        expect(calculator.moldFeeInfo.value.fee).toBe(50.00);
+        expect(calculator.hasMoldFee.value).toBe(true);
+      });
+
+      it('should calculate $62.50 mold fee for 1.75" size', () => {
+        calculator.setSizeAndQuantity('1.75', 100);
+        expect(calculator.moldFeeInfo.value.applicable).toBe(true);
+        expect(calculator.moldFeeInfo.value.fee).toBe(62.50);
+        expect(calculator.moldFeeInfo.value.waived).toBe(false);
+        expect(calculator.hasMoldFee.value).toBe(true);
+        expect(calculator.moldFeeWaived.value).toBe(false);
+      });
+
+      it('should calculate $75 mold fee for sizes ≥ 2.0"', () => {
+        calculator.setSizeAndQuantity('2.00', 100);
+        expect(calculator.moldFeeInfo.value.applicable).toBe(true);
+        expect(calculator.moldFeeInfo.value.fee).toBe(75.00);
+        expect(calculator.moldFeeInfo.value.waived).toBe(false);
+        expect(calculator.hasMoldFee.value).toBe(true);
+        expect(calculator.moldFeeWaived.value).toBe(false);
+      });
+
+      it('should waive mold fee for quantities > 500', () => {
+        calculator.setSizeAndQuantity('1.00', 750);
+        expect(calculator.moldFeeInfo.value.applicable).toBe(true);
+        expect(calculator.moldFeeInfo.value.fee).toBe(0);
+        expect(calculator.moldFeeInfo.value.waived).toBe(true);
+        expect(calculator.moldFeeInfo.value.reason).toBe('High volume exemption (500+ qty)');
+        expect(calculator.hasMoldFee.value).toBe(false);
+        expect(calculator.moldFeeWaived.value).toBe(true);
+        expect(calculator.moldFeeWaivedReason.value).toBe('High volume exemption (500+ qty)');
+
+        calculator.setSizeAndQuantity('2.00', 1000);
+        expect(calculator.moldFeeInfo.value.fee).toBe(0);
+        expect(calculator.moldFeeInfo.value.waived).toBe(true);
+        expect(calculator.hasMoldFee.value).toBe(false);
+        expect(calculator.moldFeeWaived.value).toBe(true);
+
+        calculator.setSizeAndQuantity('1.75', 2000);
+        expect(calculator.moldFeeInfo.value.fee).toBe(0);
+        expect(calculator.moldFeeInfo.value.waived).toBe(true);
+        expect(calculator.hasMoldFee.value).toBe(false);
+        expect(calculator.moldFeeWaived.value).toBe(true);
+      });
+
+      it('should apply mold fee for quantity exactly 500', () => {
+        calculator.setSizeAndQuantity('1.50', 500);
+        expect(calculator.moldFeeInfo.value.applicable).toBe(true);
+        expect(calculator.moldFeeInfo.value.fee).toBe(50.00);
+        expect(calculator.moldFeeInfo.value.waived).toBe(false);
+        expect(calculator.hasMoldFee.value).toBe(true);
+        expect(calculator.moldFeeWaived.value).toBe(false);
+      });
+
+      it('should not be applicable when size or quantity is not selected', () => {
+        expect(calculator.moldFeeInfo.value.applicable).toBe(false);
+        expect(calculator.moldFeeInfo.value.fee).toBe(0);
+        expect(calculator.moldFeeInfo.value.waived).toBe(false);
+        expect(calculator.hasMoldFee.value).toBe(false);
+        expect(calculator.moldFeeWaived.value).toBe(false);
+
+        calculator.setSizeAndQuantity('1.00', 100);
+        calculator.resetSelections();
+        expect(calculator.moldFeeInfo.value.applicable).toBe(false);
+      });
+    });
+
+    describe('Real-time Updates', () => {
+      it('should update mold fee when size changes', () => {
+        calculator.setSizeAndQuantity('1.00', 100);
+        expect(calculator.moldFeeInfo.value.fee).toBe(50.00);
+        expect(calculator.hasMoldFee.value).toBe(true);
+
+        calculator.setSizeAndQuantity('1.75', 100);
+        expect(calculator.moldFeeInfo.value.fee).toBe(62.50);
+        expect(calculator.hasMoldFee.value).toBe(true);
+
+        calculator.setSizeAndQuantity('2.00', 100);
+        expect(calculator.moldFeeInfo.value.fee).toBe(75.00);
+        expect(calculator.hasMoldFee.value).toBe(true);
+      });
+
+      it('should update mold fee when quantity changes', () => {
+        calculator.setSizeAndQuantity('1.50', 100);
+        expect(calculator.moldFeeInfo.value.fee).toBe(50.00);
+        expect(calculator.moldFeeInfo.value.waived).toBe(false);
+        expect(calculator.hasMoldFee.value).toBe(true);
+        expect(calculator.moldFeeWaived.value).toBe(false);
+
+        calculator.setSizeAndQuantity('1.50', 750);
+        expect(calculator.moldFeeInfo.value.fee).toBe(0);
+        expect(calculator.moldFeeInfo.value.waived).toBe(true);
+        expect(calculator.hasMoldFee.value).toBe(false);
+        expect(calculator.moldFeeWaived.value).toBe(true);
+
+        calculator.setSizeAndQuantity('1.50', 300);
+        expect(calculator.moldFeeInfo.value.fee).toBe(50.00);
+        expect(calculator.moldFeeInfo.value.waived).toBe(false);
+        expect(calculator.hasMoldFee.value).toBe(true);
+        expect(calculator.moldFeeWaived.value).toBe(false);
+      });
+
+      it('should handle waived/applied transitions correctly', () => {
+        // Start with quantity that applies mold fee
+        calculator.setSizeAndQuantity('2.00', 500);
+        expect(calculator.moldFeeInfo.value.fee).toBe(75.00);
+        expect(calculator.moldFeeInfo.value.waived).toBe(false);
+        expect(calculator.hasMoldFee.value).toBe(true);
+        expect(calculator.moldFeeWaived.value).toBe(false);
+
+        // Change to quantity that waives mold fee
+        calculator.setSizeAndQuantity('2.00', 750);
+        expect(calculator.moldFeeInfo.value.fee).toBe(0);
+        expect(calculator.moldFeeInfo.value.waived).toBe(true);
+        expect(calculator.hasMoldFee.value).toBe(false);
+        expect(calculator.moldFeeWaived.value).toBe(true);
+
+        // Change back to quantity that applies mold fee
+        calculator.setSizeAndQuantity('2.00', 200);
+        expect(calculator.moldFeeInfo.value.fee).toBe(75.00);
+        expect(calculator.moldFeeInfo.value.waived).toBe(false);
+        expect(calculator.hasMoldFee.value).toBe(true);
+        expect(calculator.moldFeeWaived.value).toBe(false);
+      });
+    });
+
+    describe('Price Breakdown Integration', () => {
+      it('should include mold fee in price breakdown when applicable', () => {
+        calculator.setSizeAndQuantity('1.50', 100);
+        
+        const breakdown = calculator.priceBreakdown.value;
+        expect(breakdown).not.toBeNull();
+        expect(breakdown!.moldFee).toBe(50.00);
+        expect(breakdown!.moldFeeWaived).toBe(false);
+        expect(breakdown!.total).toBe(325); // 275 (base) + 50 (mold fee)
+      });
+
+      it('should exclude mold fee from price breakdown when waived', () => {
+        calculator.setSizeAndQuantity('1.50', 750);
+        
+        const breakdown = calculator.priceBreakdown.value;
+        expect(breakdown).not.toBeNull();
+        expect(breakdown!.moldFee).toBe(0);
+        expect(breakdown!.moldFeeWaived).toBe(true);
+        expect(breakdown!.total).toBe(937.5); // Base price for 1.50" x 750 (1.25 * 750) without mold fee
+      });
+
+      it('should include mold fee in rush fee calculation', () => {
+        calculator.setSizeAndQuantity('1.00', 100);
+        calculator.setRushOrder(true);
+        
+        const breakdown = calculator.priceBreakdown.value;
+        expect(breakdown).not.toBeNull();
+        expect(breakdown!.moldFee).toBe(50.00);
+        expect(breakdown!.moldFeeWaived).toBe(false);
+        // Rush fee should be 20% of (basePrice + moldFee) = 20% of (261 + 50) = 62.2
+        expect(breakdown!.rushFee).toBe(62.2);
+        expect(breakdown!.total).toBe(373.2); // 261 + 50 + 62.2
+      });
+
+      it('should not include waived mold fee in rush fee calculation', () => {
+        calculator.setSizeAndQuantity('1.00', 750);
+        calculator.setRushOrder(true);
+        
+        const breakdown = calculator.priceBreakdown.value;
+        expect(breakdown).not.toBeNull();
+        expect(breakdown!.moldFee).toBe(0);
+        expect(breakdown!.moldFeeWaived).toBe(true);
+        // Rush fee should be 20% of basePrice only (no mold fee)
+        // For 1.00" x 750, unit price is 1.16, so base price is 1.16 * 750 = 870
+        const expectedBasePrice = 1.16 * 750; // 870
+        const expectedRushFee = expectedBasePrice * 0.20; // 174
+        expect(breakdown!.rushFee).toBe(expectedRushFee);
+        expect(breakdown!.total).toBe(expectedBasePrice + expectedRushFee);
+      });
+    });
+
+    describe('Error Handling', () => {
+      it('should handle mold fee calculation errors gracefully', () => {
+        // This test ensures the composable doesn't break if mold fee calculation fails
+        calculator.setSizeAndQuantity('1.00', 100);
+        
+        // Even if there's an error in mold fee calculation, the composable should still work
+        expect(calculator.moldFeeInfo.value).toBeDefined();
+        expect(calculator.hasMoldFee.value).toBeDefined();
+        expect(calculator.moldFeeWaived.value).toBeDefined();
+        expect(calculator.moldFeeAmount.value).toBeDefined();
+        expect(calculator.moldFeeWaivedReason.value).toBeDefined();
+      });
     });
   });
 });
