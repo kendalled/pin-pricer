@@ -38,8 +38,9 @@
       tabindex="-1"
     >
       <div class="max-w-7xl mx-auto px-3 xs:px-4 sm:px-6 lg:px-8 py-4 xs:py-6 sm:py-8">
-        <!-- Calculator Component -->
-        <PricingCalculator />
+        <!-- Calculator Component with Feature Flag -->
+        <PricingCalculatorSimple v-if="useSimplifiedCalculator" />
+        <PricingCalculator v-else />
       </div>
     </main>
 
@@ -60,6 +61,10 @@
 
 <script setup lang="ts">
 import PricingCalculator from '~/components/calculator/PricingCalculator.vue';
+import PricingCalculatorSimple from '~/components/PricingCalculatorSimple.vue';
+
+// Feature flag: Use simplified calculator (set to true to enable)
+const useSimplifiedCalculator = true;
 
 // Set page meta for SEO and accessibility
 useHead({
