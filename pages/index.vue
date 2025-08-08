@@ -11,14 +11,14 @@
 
     <!-- Main Application Header -->
     <header 
-      class="bg-slate-800 border-b border-slate-700 sticky top-0 z-40 high-contrast:bg-slate-950 high-contrast:border-slate-300"
+      class="glass border-b border-slate-700/60 sticky top-0 z-40 high-contrast:bg-slate-950 high-contrast:border-slate-300 backdrop-blur-xl accent-glow"
       role="banner"
     >
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16 xs:h-18">
           <div class="flex items-center">
             <h1 class="text-lg xs:text-xl sm:text-2xl font-bold text-slate-50 high-contrast:text-white leading-tight">
-              Lapel Pin Price Calculator
+              Pin Price Calculator
             </h1>
           </div>
           <div class="hidden sm:flex items-center space-x-4">
@@ -51,7 +51,7 @@
     >
       <div class="max-w-7xl mx-auto px-3 xs:px-4 sm:px-6 lg:px-8 py-4 xs:py-6">
         <div class="text-center text-slate-400 text-sm high-contrast:text-slate-300">
-          <p>&copy; {{ new Date().getFullYear() }} Lapel Pin Price Calculator</p>
+          <p>&copy; {{ new Date().getFullYear() }} Pin Price Calculator</p>
           <p class="mt-1">Get accurate pricing for your custom pins and coins</p>
         </div>
       </div>
@@ -68,7 +68,7 @@ const useSimplifiedCalculator = true;
 
 // Set page meta for SEO and accessibility
 useHead({
-  title: 'Lapel Pin Price Calculator',
+  title: 'Pin Price Calculator',
   meta: [
     {
       name: 'description',
@@ -83,8 +83,8 @@ useHead({
 
 // Ensure dark mode theme is applied consistently
 useSeoMeta({
-  title: 'Lapel Pin Price Calculator',
-  ogTitle: 'Lapel Pin Price Calculator',
+  title: 'Pin Price Calculator',
+  ogTitle: 'Pin Price Calculator',
   description: 'Professional pricing calculator for custom lapel pins and challenge coins',
   ogDescription: 'Get instant quotes with detailed breakdowns for different plating types, sizes, and modifications',
   ogType: 'website'

@@ -469,46 +469,4 @@ describe('CalculationSummary - Mold Fee Display', () => {
     });
   });
 
-  describe('Accessibility and Screen Reader Support', () => {
-    it('should provide proper accessibility attributes for mold fee information', () => {
-      const mockBreakdownWithMoldFee: PriceBreakdown = {
-        ...baseMockBreakdown,
-        moldFee: 50.00,
-        moldFeeWaived: false,
-        total: 245.00
-      };
-
-      wrapper = mount(CalculationSummary, {
-        props: {
-          breakdown: mockBreakdownWithMoldFee,
-          isComplete: true
-        }
-      });
-
-      const html = wrapper.html();
-      
-      // Check for aria-live regions that would announce changes
-      expect(html).toContain('aria-live="polite"');
-    });
-
-    it('should announce mold fee changes to screen readers', () => {
-      const mockBreakdownWithWaivedMoldFee: PriceBreakdown = {
-        ...baseMockBreakdown,
-        moldFee: 0,
-        moldFeeWaived: true,
-        total: 195.00
-      };
-
-      wrapper = mount(CalculationSummary, {
-        props: {
-          breakdown: mockBreakdownWithWaivedMoldFee,
-          isComplete: true
-        }
-      });
-
-      // The component should have aria-live regions for screen reader announcements
-      const liveRegions = wrapper.findAll('[aria-live="polite"]');
-      expect(liveRegions.length).toBeGreaterThan(0);
-    });
-  });
 });

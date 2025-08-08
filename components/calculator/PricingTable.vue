@@ -35,7 +35,7 @@
           <template v-for="(size, sizeIndex) in sizes" :key="size">
             <!-- Size header -->
             <div 
-              class="p-2 xs:p-3 text-center font-semibold text-slate-200 text-xs xs:text-sm bg-slate-800 rounded-lg high-contrast:bg-slate-950 high-contrast:border high-contrast:border-slate-300"
+              class="p-2 xs:p-3 flex items-center justify-center font-semibold text-slate-200 text-xs xs:text-sm bg-slate-800 rounded-lg high-contrast:bg-slate-950 high-contrast:border high-contrast:border-slate-300 h-full"
               role="rowheader"
               :aria-label="`Size ${size} inches`"
             >
@@ -107,6 +107,9 @@
         </div>
       </div>
     </div>
+
+    <!-- Divider after table block -->
+    <div class="border-t border-slate-700 my-4"></div>
   </div>
 </template>
 
@@ -217,12 +220,12 @@ const getCellClasses = (size: string, quantity: number): string => {
   ].join(' ');
   
   if (isSelected) {
-    return `bg-blue-900/30 border-blue-500 text-blue-200 shadow-md high-contrast:bg-blue-800 high-contrast:border-blue-300 high-contrast:text-white ${baseClasses}`;
+    return `bg-blue-900/30 border-blue-500 text-blue-200 shadow-md accent-ring accent-glow high-contrast:bg-blue-800 high-contrast:border-blue-300 high-contrast:text-white ${baseClasses}`;
   } else if (isHovered) {
-    return `bg-slate-700/50 border-slate-500 text-slate-200 shadow-sm ${baseClasses}`;
+    return `bg-slate-700/50 border-slate-500 text-slate-200 shadow-md ${baseClasses}`;
   }
-  
-  return `bg-slate-800 border-slate-600 text-slate-300 hover:bg-slate-700/50 hover:border-slate-500 hover:text-slate-200 hover:shadow-sm ${baseClasses}`;
+
+  return `bg-slate-800/90 border-slate-600 text-slate-300 gradient-surface hover:bg-slate-700/50 hover:border-slate-500 hover:text-slate-200 hover:shadow-md ${baseClasses}`;
 };
 
 const getCellAriaLabel = (size: string, quantity: number): string => {

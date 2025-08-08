@@ -6,6 +6,11 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ['@nuxt/fonts'],
   css: ['~/assets/css/main.css'],
+  // Avoid auto-importing from `utils` to prevent duplicate export names
+  // like `calculatePriceBreakdown` from multiple files.
+  imports: {
+    dirs: ['composables']
+  },
   fonts: {
     families: [
       { name: 'Inter', provider: 'google' }

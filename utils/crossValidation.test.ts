@@ -194,22 +194,34 @@ describe('Cross-Validation: Original vs Simplified System', () => {
 
     testScenarios.forEach(({ name, method, size, quantity, plating, backing, packaging, rushOrder }) => {
       it(`should match original breakdown for ${name}`, () => {
-        const originalBreakdown = OriginalCalcs.calculatePriceBreakdown(
-          method, size, quantity, plating, backing, packaging, rushOrder
-        )
+        const originalBreakdown = OriginalCalcs.calculatePriceBreakdown({
+          productionMethod: method,
+          size,
+          quantity,
+          platingType: plating,
+          backing,
+          packaging,
+          rushOrder,
+        } as any)
         const simplifiedBreakdown = SimpleCalcs.calculatePriceBreakdown(
           method, size, quantity, plating, backing, packaging, rushOrder
         )
 
-        // Compare all breakdown components
+        // Compare shared fields directly
         expect(simplifiedBreakdown.basePrice).toBe(originalBreakdown.basePrice)
         expect(simplifiedBreakdown.setupFee).toBe(originalBreakdown.setupFee)
         expect(simplifiedBreakdown.moldFee).toBe(originalBreakdown.moldFee)
         expect(simplifiedBreakdown.platingCost).toBe(originalBreakdown.platingCost)
         expect(simplifiedBreakdown.backingCost).toBe(originalBreakdown.backingCost)
         expect(simplifiedBreakdown.packagingCost).toBe(originalBreakdown.packagingCost)
-        expect(simplifiedBreakdown.rushOrderMultiplier).toBe(originalBreakdown.rushOrderMultiplier)
-        expect(simplifiedBreakdown.totalPrice).toBe(originalBreakdown.totalPrice)
+
+        // Derive rush multiplier from original breakdown (rushFee / subtotal)
+        const originalSubtotal = originalBreakdown.basePrice + originalBreakdown.setupFee + originalBreakdown.moldFee + originalBreakdown.platingCost + originalBreakdown.backingCost + originalBreakdown.packagingCost
+        const originalRushMultiplier = originalBreakdown.rushFee > 0 ? originalBreakdown.rushFee / originalSubtotal : 0
+        expect(simplifiedBreakdown.rushOrderMultiplier).toBeCloseTo(originalRushMultiplier, 3)
+
+        // Compare totals (different property names)
+        expect(simplifiedBreakdown.totalPrice).toBe(originalBreakdown.total)
       })
     })
   })

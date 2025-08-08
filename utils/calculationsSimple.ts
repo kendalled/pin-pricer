@@ -135,7 +135,7 @@ export const calculateAddOns = (
 }
 
 export const calculateRushOrderCost = (subtotal: number, isRushOrder: boolean): number => {
-  return isRushOrder ? subtotal * 0.25 : 0
+  return isRushOrder ? subtotal * 0.20 : 0
 }
 
 export const calculateTotal = (
@@ -176,7 +176,7 @@ export const calculatePriceBreakdown = (
   const packagingCost = calculatePackagingCost(packaging, quantity)
   
   const subtotal = basePrice + setupFee + moldFee + platingCost + backingCost + packagingCost
-  const rushOrderMultiplier = isRushOrder ? 0.25 : 0
+  const rushOrderMultiplier = isRushOrder ? 0.20 : 0
   const totalPrice = subtotal + (subtotal * rushOrderMultiplier)
   
   return {

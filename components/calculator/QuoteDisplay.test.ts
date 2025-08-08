@@ -125,7 +125,8 @@ describe('QuoteDisplay', () => {
 
     expect(wrapper.text()).toContain('Modifications');
     expect(wrapper.text()).toContain('Butterfly Clutch');
-    expect(wrapper.text()).toContain('Velvet Pouch');
+    // Packaging option in test data is Acrylic Case; ensure it's present
+    expect(wrapper.text()).toContain('Acrylic Case');
     expect(wrapper.text()).toContain('Rush Order');
     expect(wrapper.text()).toContain('No');
   });

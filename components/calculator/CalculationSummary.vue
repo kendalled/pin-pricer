@@ -54,6 +54,8 @@
         <span class="font-medium text-sm xs:text-base">{{ safeFormatCurrency(breakdown.basePrice) }}</span>
       </div>
       
+      <div class="border-t border-dashed border-slate-700/80"></div>
+
       <!-- Setup Fee (only show if applicable) -->
       <div 
         v-if="breakdown.setupFee > 0" 
@@ -63,6 +65,8 @@
         <span class="font-medium text-sm xs:text-base">{{ safeFormatCurrency(breakdown.setupFee) }}</span>
       </div>
       
+      <div v-if="breakdown.setupFee > 0" class="border-t border-dashed border-slate-700/60"></div>
+
       <!-- Plating Cost (only show if applicable) -->
       <div 
         v-if="breakdown.platingCost > 0" 
@@ -72,6 +76,8 @@
         <span class="font-medium text-sm xs:text-base">{{ safeFormatCurrency(breakdown.platingCost) }}</span>
       </div>
       
+      <div v-if="breakdown.platingCost > 0" class="border-t border-dashed border-slate-700/60"></div>
+
       <!-- Backing Cost (only show if applicable) -->
       <div 
         v-if="breakdown.backingCost > 0" 
@@ -81,6 +87,8 @@
         <span class="font-medium text-sm xs:text-base">{{ safeFormatCurrency(breakdown.backingCost) }}</span>
       </div>
       
+      <div v-if="breakdown.backingCost > 0" class="border-t border-dashed border-slate-700/60"></div>
+
       <!-- Packaging Cost (only show if applicable) -->
       <div 
         v-if="breakdown.packagingCost > 0" 
@@ -90,6 +98,8 @@
         <span class="font-medium text-sm xs:text-base">{{ safeFormatCurrency(breakdown.packagingCost) }}</span>
       </div>
       
+      <div v-if="breakdown.packagingCost > 0" class="border-t border-dashed border-slate-700/60"></div>
+
       <!-- Rush Fee (only show if applicable) -->
       <div 
         v-if="breakdown.rushFee > 0" 
@@ -122,7 +132,7 @@
       </div>
       
       <!-- Divider -->
-      <hr class="border-slate-600 my-3 xs:my-4 high-contrast:border-slate-300">
+      <hr class="border-t border-slate-600 my-3 xs:my-4 high-contrast:border-slate-300">
       
       <!-- Total -->
       <div 

@@ -25,20 +25,20 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const badgeClasses = computed(() => {
-  const baseClasses = 'inline-flex items-center font-medium rounded-full transition-all duration-200'
+  const baseClasses = 'inline-flex items-center font-medium rounded-full transition-all duration-250 px-2.5 py-1 border backdrop-blur-sm'
   
   const sizeClasses = {
-    sm: 'px-2 py-0.5 text-xs',
-    md: 'px-2.5 py-1 text-sm',
-    lg: 'px-3 py-1.5 text-base'
+    sm: 'text-xs',
+    md: 'text-sm',
+    lg: 'text-base'
   }
   
   const variantClasses = {
-    default: 'bg-slate-700 text-slate-200 border border-slate-600',
-    success: 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30',
-    warning: 'bg-amber-500/20 text-amber-400 border border-amber-500/30',
-    info: 'bg-blue-500/20 text-blue-400 border border-blue-500/30',
-    error: 'bg-red-500/20 text-red-400 border border-red-500/30'
+    default: 'bg-slate-800/60 text-slate-200 border-slate-600/70',
+    success: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
+    warning: 'bg-amber-500/15 text-amber-300 border-amber-500/30',
+    info: 'bg-blue-500/15 text-blue-300 border-blue-500/30',
+    error: 'bg-red-500/15 text-red-300 border-red-500/30'
   }
   
   return [

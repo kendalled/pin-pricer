@@ -197,6 +197,8 @@
       </div>
     </Card>
 
+    <div class="border-t border-slate-700 my-6 xs:my-8"></div>
+
     <!-- Step 2: Plating Type Selection -->
     <Card v-if="state.selectedProductionMethod">
       <template #header>
@@ -219,6 +221,8 @@
         {{ validationErrors.platingType }}
       </div>
     </Card>
+
+    <div class="border-t border-slate-700 my-6 xs:my-8"></div>
 
     <!-- Step 3: Size and Quantity Selection -->
     <Card v-if="state.selectedPlatingType">
@@ -252,6 +256,8 @@
       </div>
     </Card>
 
+    <div class="border-t border-slate-700 my-6 xs:my-8"></div>
+
     <!-- Step 4: Modifications -->
     <Card v-if="state.selectedSize && state.selectedQuantity">
       <template #header>
@@ -284,6 +290,8 @@
         <div v-if="validationErrors.packaging">{{ validationErrors.packaging }}</div>
       </div>
     </Card>
+
+    <div class="border-t border-slate-700 my-6 xs:my-8"></div>
 
     <!-- Price Summary (Always Visible) -->
     <div class="grid lg:grid-cols-2 gap-6">

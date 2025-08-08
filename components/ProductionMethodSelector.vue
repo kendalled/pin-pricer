@@ -27,7 +27,7 @@
           @change="selectProductionMethod(productionMethod)"
           class="sr-only"
         />
-        <div class="flex-1 min-w-0">
+        <div class="flex-1 min-w-0 hover-lift">
           <div class="flex flex-col items-center space-y-1 min-h-[3rem] justify-center">
             <span class="font-medium text-sm xs:text-base leading-tight text-center">{{ productionMethod.name }}</span>
             <div
@@ -54,6 +54,7 @@
       </label>
     </div>
 
+    <div class="border-t border-slate-700 my-4"></div>
     <!-- Setup Fee Notice -->
     <div
       v-if="selectedMethod?.setupFee"
@@ -155,15 +156,15 @@ const getOptionClasses = (isSelected: boolean): string => {
   if (isSelected) {
     return [
       baseClasses,
-      'bg-blue-900/30 border-blue-500 text-blue-200 shadow-md',
+      'bg-blue-900/40 border-blue-400 text-blue-200 shadow-md accent-ring accent-glow',
       'high-contrast:bg-blue-800 high-contrast:border-blue-300 high-contrast:text-white'
     ].join(' ');
   }
   
   return [
     baseClasses,
-    'bg-slate-800 border-slate-600 text-slate-300',
-    'hover:bg-slate-700/50 hover:border-slate-500 hover:text-slate-200 hover:shadow-sm',
+    'bg-slate-800/90 border-slate-600 text-slate-300 gradient-surface',
+    'hover:bg-slate-700/60 hover:border-slate-500 hover:text-slate-200 hover:shadow-md',
     'active:bg-slate-700 active:scale-95',
     'high-contrast:bg-slate-950 high-contrast:border-slate-300 high-contrast:text-white'
   ].join(' ');

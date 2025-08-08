@@ -1,79 +1,58 @@
 import { describe, it, expect } from 'vitest';
 import { mount } from '@vue/test-utils';
 import PlatingTypeSelector from './PlatingTypeSelector.vue';
-import { PLATING_TYPES } from '~/data/pricing';
+import { PLATING_OPTIONS } from '~/data/pricing';
 
 describe('PlatingTypeSelector', () => {
-  it('renders all plating types', () => {
+  it('renders all plating options', () => {
     const wrapper = mount(PlatingTypeSelector);
     
-    // Should render all 5 plating types
-    const buttons = wrapper.findAll('button');
-    expect(buttons).toHaveLength(5);
+    const options = wrapper.findAll('label');
+    expect(options.length).toBe(PLATING_OPTIONS.length);
     
-    // Check that all plating type names are rendered
-    PLATING_TYPES.forEach(type => {
-      expect(wrapper.text()).toContain(type.name);
+    // Check that all plating option names are rendered
+    PLATING_OPTIONS.forEach(option => {
+      expect(wrapper.text()).toContain(option.name);
     });
   });
 
-  it('shows setup fee indicator for Offset Printed', () => {
+  it('shows FREE or price badge for each option', () => {
     const wrapper = mount(PlatingTypeSelector);
     
-    // Find the Offset Printed button
-    const offsetButton = wrapper.findAll('button').find(button => 
-      button.text().includes('Offset Printed')
-    );
-    
-    expect(offsetButton).toBeDefined();
-    expect(offsetButton?.text()).toContain('+$100');
+    PLATING_OPTIONS.forEach(option => {
+      if (option.isFree) {
+        expect(wrapper.text()).toContain('FREE');
+      } else {
+        expect(wrapper.text()).toContain(`+$${option.price.toFixed(2)}`);
+      }
+    });
   });
 
-  it('emits update:selectedType when a plating type is clicked', async () => {
+  it('emits update:selectedPlating when an option is selected', async () => {
     const wrapper = mount(PlatingTypeSelector);
-    
-    const firstButton = wrapper.findAll('button')[0];
-    await firstButton.trigger('click');
-    
-    expect(wrapper.emitted('update:selectedType')).toBeTruthy();
-    expect(wrapper.emitted('update:selectedType')?.[0]).toEqual([PLATING_TYPES[0]]);
+
+    const firstInput = wrapper.findAll('input[type="radio"]')[0];
+    await firstInput.setValue();
+
+    expect(wrapper.emitted('update:selectedPlating')).toBeTruthy();
   });
 
-  it('applies selected styling to the selected type', () => {
-    const selectedType = PLATING_TYPES[0];
+  it('applies selected styling to the selected option', () => {
+    const selectedPlating = PLATING_OPTIONS[0];
     const wrapper = mount(PlatingTypeSelector, {
       props: {
-        selectedType
+        selectedPlating
       }
     });
     
-    const buttons = wrapper.findAll('button');
-    const selectedButton = buttons[0];
+    const options = wrapper.findAll('label');
+    const selected = options[0];
     
-    expect(selectedButton.classes()).toContain('bg-blue-600');
-    expect(selectedButton.classes()).toContain('text-white');
+    expect(selected.classes()).toContain('border-blue-500');
   });
 
-  it('shows setup fee notice when Offset Printed is selected', () => {
-    const offsetPrintedType = PLATING_TYPES.find(type => type.id === 'offset-printed');
-    const wrapper = mount(PlatingTypeSelector, {
-      props: {
-        selectedType: offsetPrintedType
-      }
-    });
-    
-    expect(wrapper.text()).toContain('includes a one-time setup fee');
-    expect(wrapper.text()).toContain('$100');
-  });
-
-  it('does not show setup fee notice for other plating types', () => {
-    const dieStruckType = PLATING_TYPES.find(type => type.id === 'die-struck');
-    const wrapper = mount(PlatingTypeSelector, {
-      props: {
-        selectedType: dieStruckType
-      }
-    });
-    
-    expect(wrapper.text()).not.toContain('includes a one-time setup fee');
+  it('does not show setup fee notices (not applicable for plating options)', () => {
+    const wrapper = mount(PlatingTypeSelector);
+    expect(wrapper.text()).not.toContain('setup fee');
   });
 });

@@ -30,19 +30,17 @@ const headerId = `card-header-${Math.random().toString(36).substr(2, 9)}`
 
 const cardClasses = computed(() => {
   const baseClasses = [
-    'bg-slate-800 border border-slate-700 rounded-xl',
-    'transition-all duration-250 ease-in-out',
-    // High contrast mode support
+    'glass border border-slate-700/60 rounded-2xl',
+    'transition-all duration-250 ease-in-out card-hover-border elevated-shadow',
     'high-contrast:bg-slate-950 high-contrast:border-slate-300',
-    // Reduced motion support
     'reduced-motion:transition-none'
   ].join(' ')
-  
+
   const variantClasses = {
-    default: 'shadow-sm hover:shadow-md',
-    elevated: 'shadow-lg shadow-slate-900/20 hover:shadow-xl hover:shadow-slate-900/25'
+    default: 'hover:shadow-lg accent-glow/0 hover:accent-glow',
+    elevated: 'shadow-xl hover:shadow-2xl accent-glow'
   }
-  
+
   return [
     baseClasses,
     variantClasses[props.variant]
@@ -50,7 +48,7 @@ const cardClasses = computed(() => {
 })
 
 const headerClasses = computed(() => {
-  const basePadding = 'border-b border-slate-700 high-contrast:border-slate-300'
+  const basePadding = 'border-b border-slate-700/60 high-contrast:border-slate-300'
   
   const paddingClasses = {
     none: `${basePadding} px-0 py-0`,
@@ -74,7 +72,7 @@ const contentClasses = computed(() => {
 })
 
 const footerClasses = computed(() => {
-  const basePadding = 'border-t border-slate-700 high-contrast:border-slate-300'
+  const basePadding = 'border-t border-slate-700/60 high-contrast:border-slate-300'
   
   const paddingClasses = {
     none: `${basePadding} px-0 py-0`,

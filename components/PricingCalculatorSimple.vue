@@ -200,7 +200,7 @@
               <template v-for="(size, sizeIndex) in SIZES" :key="size">
                 <!-- Size header -->
                 <div 
-                  class="p-2 xs:p-3 text-center font-semibold text-slate-200 text-xs xs:text-sm bg-slate-800 rounded-lg high-contrast:bg-slate-950 high-contrast:border high-contrast:border-slate-300"
+                  class="pt-5 p-2 xs:p-3 text-center font-semibold text-slate-200 text-xs xs:text-sm bg-slate-800 rounded-lg high-contrast:bg-slate-950 high-contrast:border high-contrast:border-slate-300"
                   role="rowheader"
                   :aria-label="`Size ${size} inches`"
                 >
@@ -386,7 +386,7 @@
           <legend class="text-lg font-semibold text-slate-200 mb-4 high-contrast:text-white">
             Rush Order
           </legend>
-          <label class="relative flex items-center p-3 xs:p-4 border rounded-xl cursor-pointer transition-all duration-250 ease-in-out focus-within:ring-3 focus-within:ring-blue-500 focus-within:ring-offset-2 focus-within:ring-offset-slate-900 min-h-[44px] reduced-motion:transition-none bg-slate-800 border-slate-600 text-slate-300 hover:bg-slate-700/50 hover:border-slate-500 hover:text-slate-200 hover:shadow-sm active:bg-slate-700 active:scale-95 high-contrast:bg-slate-950 high-contrast:border-slate-300 high-contrast:text-white">
+          <label class="relative flex items-center p-3 xs:p-4 border rounded-xl cursor-pointer transition-colors duration-300 ease-out focus-within:ring-3 focus-within:ring-blue-500 focus-within:ring-offset-2 focus-within:ring-offset-slate-900 min-h-[44px] reduced-motion:transition-none bg-slate-800 border-slate-600 text-slate-300 hover:bg-slate-700/50 hover:border-slate-500 hover:text-slate-200 hover:shadow-sm active:bg-slate-700 high-contrast:bg-slate-950 high-contrast:border-slate-300 high-contrast:text-white transition-transform duration-[400ms] ease-out active:scale-98">
             <input
               v-model="isRushOrder"
               type="checkbox"
@@ -394,7 +394,7 @@
             />
             <div class="flex-1 min-w-0">
               <div class="flex flex-col xs:flex-row xs:items-center xs:justify-between gap-1 xs:gap-2">
-                <span class="font-medium text-sm xs:text-base leading-tight">Rush Order (+25%)</span>
+                <span class="font-medium text-sm xs:text-base leading-tight">Rush Order (+20%)</span>
                 <span class="text-sm font-semibold flex-shrink-0 text-amber-400 high-contrast:text-amber-300">
                   Expedited Delivery
                 </span>
@@ -403,16 +403,16 @@
             <!-- Toggle indicator -->
             <div
               :class="[
-                'ml-3 w-12 h-6 rounded-full border-2 flex items-center transition-all duration-250 flex-shrink-0',
+                'ml-3 w-12 h-6 rounded-full border-2 flex items-center transition-colors duration-300 ease-out flex-shrink-0 shadow-inner',
                 isRushOrder
-                  ? 'border-blue-500 bg-blue-500 justify-end high-contrast:border-blue-300 high-contrast:bg-blue-700'
+                  ? 'border-blue-500 bg-blue-500/90 justify-end high-contrast:border-blue-300 high-contrast:bg-blue-700'
                   : 'border-slate-500 bg-slate-700 justify-start high-contrast:border-slate-300'
               ]"
               aria-hidden="true"
             >
               <div
                 :class="[
-                  'w-4 h-4 rounded-full bg-white transition-all duration-250',
+                  'w-4 h-4 rounded-full bg-white transition-transform duration-300 ease-out shadow',
                   isRushOrder ? 'mr-1' : 'ml-1'
                 ]"
               />
@@ -487,7 +487,7 @@
               v-if="isRushOrder && rushOrderCost > 0" 
               class="flex justify-between items-center text-slate-200 high-contrast:text-slate-100"
             >
-              <span class="text-sm xs:text-base">Rush Order (25%)</span>
+              <span class="text-sm xs:text-base">Rush Order (20%)</span>
               <span class="font-medium text-sm xs:text-base">${{ rushOrderCost.toFixed(2) }}</span>
             </div>
             
@@ -589,7 +589,7 @@
                 <div v-if="isRushOrder" class="flex justify-between items-center py-1 text-sm">
                   <span class="text-slate-400">Rush Order:</span>
                   <span class="inline-flex items-center px-1.5 py-0.5 rounded text-xs bg-amber-900/20 text-amber-400 border border-amber-700/30">
-                    +25% Expedited
+                    +20% Expedited
                   </span>
                 </div>
               </div>
@@ -599,7 +599,7 @@
             <div class="bg-slate-900/50 rounded-lg p-4 border border-slate-700">
               <div class="text-center">
                 <p class="text-slate-400 text-xs mb-1">Total Project Cost</p>
-                <p class="text-2xl font-bold text-slate-50">${{ totalPrice.toFixed(2) }}</p>
+                <p class="text-2xl font-bold text-slate-50">{{ formatCurrency(totalPrice) }}</p>
                 <p class="text-slate-400 text-xs mt-1">${{ (totalPrice / selectedQuantity).toFixed(2) }} per unit</p>
               </div>
             </div>
@@ -622,6 +622,7 @@ import {
   calculateTotal,
   calculatePriceBreakdown
 } from '~/utils/calculationsSimple'
+import { formatCurrency } from '~/utils/calculations'
 
 // Form State (replace 353-line composable)
 const selectedProductionMethod = ref<ProductionMethod | null>(null)
@@ -665,7 +666,7 @@ const addOnCosts = computed(() => calculateAddOns(
 const rushOrderCost = computed(() => {
   if (!isRushOrder.value) return 0
   const subtotal = basePrice.value + setupFee.value + moldFee.value + addOnCosts.value
-  return subtotal * 0.25
+  return subtotal * 0.20
 })
 
 const totalPrice = computed(() => calculateTotal(
@@ -792,7 +793,7 @@ const generateQuote = () => {
       platingCost: selectedPlating.value && !selectedPlating.value.isFree ? selectedPlating.value.price * selectedQuantity.value : 0,
       backingCost: selectedBacking.value && !selectedBacking.value.isFree ? selectedBacking.value.price * selectedQuantity.value : 0,
       packagingCost: selectedPackaging.value && !selectedPackaging.value.isFree ? selectedPackaging.value.price * selectedQuantity.value : 0,
-      rushOrderMultiplier: isRushOrder.value ? 0.25 : 0,
+      rushOrderMultiplier: isRushOrder.value ? 0.20 : 0,
       totalPrice: totalPrice.value
     },
     unitPrice: totalPrice.value / selectedQuantity.value,

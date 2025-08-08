@@ -77,7 +77,8 @@ describe('PricingTable', () => {
     );
 
     expect(selectedButton).toBeDefined();
-    expect(selectedButton!.classes()).toContain('bg-blue-600');
+    const classes = selectedButton!.classes();
+    expect(classes.some(c => c.includes('border-blue-500') || c.includes('bg-blue-900/30'))).toBe(true);
   });
 
   it('shows selection summary when size and quantity are selected', () => {
@@ -89,8 +90,8 @@ describe('PricingTable', () => {
       }
     });
 
-    // Check if selection summary is displayed
-    expect(wrapper.text()).toContain('Selected: 1.00" × 500 units');
+    // Check if selection summary is displayed (allow optional space after colon)
+    expect(wrapper.text()).toMatch(/Selected:\s*1\.00" × 500 units/);
     expect(wrapper.text()).toContain('Unit Price: $1.26');
     expect(wrapper.text()).toContain('Base Total: $630.00');
   });
@@ -120,14 +121,14 @@ describe('PricingTable', () => {
     // Trigger mouseenter
     await firstButton!.trigger('mouseenter');
     
-    // Check if hover classes are applied
-    expect(firstButton!.classes()).toContain('bg-slate-600');
+    // Check if hover classes are applied (refreshed uses bg-slate-700/50)
+    expect(firstButton!.classes().some(c => c.includes('bg-slate-700/50'))).toBe(true);
 
     // Trigger mouseleave
     await firstButton!.trigger('mouseleave');
     
-    // Hover classes should be removed
-    expect(firstButton!.classes()).toContain('bg-slate-700');
+    // Hover classes should be removed, base classes remain
+    expect(firstButton!.classes().some(c => c.includes('bg-slate-800') || c.includes('bg-slate-700'))).toBe(true);
   });
 
   it('formats prices correctly', () => {

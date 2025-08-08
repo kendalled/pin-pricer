@@ -26,7 +26,7 @@
             :aria-describedby="`backing-${option.id}-price`"
             class="sr-only"
           />
-          <div class="flex-1 min-w-0">
+          <div class="flex-1 min-w-0 hover-lift">
             <div class="flex flex-col xs:flex-row xs:items-center xs:justify-between gap-1 xs:gap-2">
               <span class="font-medium text-sm xs:text-base leading-tight">{{ option.name }}</span>
               <span
@@ -85,7 +85,7 @@
             :aria-describedby="`packaging-${option.id}-price`"
             class="sr-only"
           />
-          <div class="flex-1 min-w-0">
+          <div class="flex-1 min-w-0 hover-lift">
             <div class="flex flex-col xs:flex-row xs:items-center xs:justify-between gap-1 xs:gap-2">
               <span class="font-medium text-sm xs:text-base leading-tight">{{ option.name }}</span>
               <span
@@ -118,6 +118,8 @@
       </div>
     </fieldset>
 
+    <div class="border-t border-slate-700 my-4"></div>
+
     <!-- Rush Order Toggle -->
     <div>
       <div 
@@ -133,7 +135,7 @@
             Add 20% to total price for expedited processing
           </p>
         </div>
-        <label class="relative inline-flex items-center cursor-pointer flex-shrink-0">
+        <label class="relative inline-flex items-center cursor-pointer flex-shrink-0 transition-transform duration-[600ms] ease-out active:scale-98 reduced-motion:transition-none">
           <input
             type="checkbox"
             :checked="rushOrder"
@@ -145,17 +147,17 @@
           />
           <div
             :class="[
-              'relative w-12 h-7 rounded-full transition-all duration-250 ease-in-out',
+              'relative w-12 h-7 rounded-full transition-colors duration-300 ease-out shadow-inner',
               'peer-focus-visible:ring-3 peer-focus-visible:ring-blue-500 peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-slate-900',
               'reduced-motion:transition-none',
               rushOrder
-                ? 'bg-green-600 high-contrast:bg-green-700'
+                ? 'bg-green-500/90 high-contrast:bg-green-700'
                 : 'bg-slate-600 high-contrast:bg-slate-700'
             ]"
           >
             <div
               :class="[
-                'absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full transition-transform duration-250 ease-in-out shadow-sm',
+                'absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full transition-transform duration-300 ease-out shadow',
                 'reduced-motion:transition-none',
                 rushOrder ? 'translate-x-5' : 'translate-x-0'
               ]"
@@ -259,15 +261,15 @@ const getOptionClasses = (isSelected: boolean): string => {
   if (isSelected) {
     return [
       baseClasses,
-      'bg-blue-900/30 border-blue-500 text-blue-200 shadow-md',
+      'bg-blue-900/30 bg-blue-900/40 border-blue-500 border-blue-400 text-blue-200 shadow-md accent-ring accent-glow',
       'high-contrast:bg-blue-800 high-contrast:border-blue-300 high-contrast:text-white'
     ].join(' ');
   }
   
   return [
     baseClasses,
-    'bg-slate-800 border-slate-600 text-slate-300',
-    'hover:bg-slate-700/50 hover:border-slate-500 hover:text-slate-200 hover:shadow-sm',
+    'bg-slate-800/90 border-slate-600 text-slate-300 gradient-surface',
+    'hover:bg-slate-700/60 hover:border-slate-500 hover:text-slate-200 hover:shadow-md',
     'active:bg-slate-700 active:scale-95',
     'high-contrast:bg-slate-950 high-contrast:border-slate-300 high-contrast:text-white'
   ].join(' ');

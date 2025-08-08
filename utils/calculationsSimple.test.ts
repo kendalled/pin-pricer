@@ -415,7 +415,7 @@ describe('Basic Calculations', () => {
 
     it('should calculate total with rush order', () => {
       const result = calculateTotal(250, 50, 100, true)
-      expect(result).toBe(500) // (250 + 50 + 100) * 1.25
+      expect(result).toBe(480) // (250 + 50 + 100) * 1.20
     })
   })
 
@@ -458,8 +458,8 @@ describe('Basic Calculations', () => {
       expect(result.platingCost).toBe(0)
       expect(result.backingCost).toBe(0)
       expect(result.packagingCost).toBe(0)
-      expect(result.rushOrderMultiplier).toBe(0.25)
-      expect(result.totalPrice).toBe(1000) // (750 + 50) * 1.25 = 1000
+      expect(result.rushOrderMultiplier).toBe(0.20)
+      expect(result.totalPrice).toBe(960) // (750 + 50) * 1.20 = 960
     })
   })
 })

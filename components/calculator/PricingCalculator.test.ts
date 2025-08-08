@@ -76,24 +76,6 @@ describe('PricingCalculator Functionality', () => {
     });
   });
 
-  it('should have accessibility features', () => {
-    // Test that accessibility attributes are properly structured
-    const accessibilityFeatures = [
-      'role="progressbar"',
-      'aria-label="Calculator progress"',
-      'aria-valuenow',
-      'aria-valuemin="0"',
-      'aria-valuemax="3"',
-      'role="region"',
-      'aria-labelledby',
-      'aria-live="polite"'
-    ];
-
-    accessibilityFeatures.forEach(feature => {
-      expect(typeof feature).toBe('string');
-      expect(feature.length).toBeGreaterThan(0);
-    });
-  });
 });
 
 describe('PricingCalculator Mold Fee Integration', () => {

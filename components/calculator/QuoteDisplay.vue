@@ -22,17 +22,17 @@
           </div>
         </template>
 
-        <div class="space-y-8">
+            <div class="space-y-8">
           <!-- Order Details Section -->
           <div class="grid md:grid-cols-2 gap-8">
             <!-- Product Specifications -->
-            <div>
+              <div>
               <h3 class="text-lg font-medium text-slate-200 mb-4 flex items-center">
                 <CogIcon class="w-5 h-5 mr-2" />
                 Product Specifications
               </h3>
               <div class="space-y-3">
-                <div class="flex justify-between items-center py-2 border-b border-slate-700">
+                  <div class="flex justify-between items-center py-2 border-b border-slate-700">
                   <span class="text-slate-400">Plating Type:</span>
                   <div class="flex items-center gap-2">
                     <span class="text-slate-200 font-medium">{{ selections.platingType.name }}</span>
@@ -57,12 +57,12 @@
             </div>
 
             <!-- Modifications -->
-            <div>
+              <div>
               <h3 class="text-lg font-medium text-slate-200 mb-4 flex items-center">
                 <WrenchScrewdriverIcon class="w-5 h-5 mr-2" />
                 Modifications
               </h3>
-              <div class="space-y-3">
+                <div class="space-y-3">
                 <div class="flex justify-between items-center py-2 border-b border-slate-700">
                   <span class="text-slate-400">Backing:</span>
                   <div class="flex items-center gap-2">
@@ -91,12 +91,12 @@
           </div>
 
           <!-- Price Breakdown -->
-          <div>
+            <div>
             <h3 class="text-lg font-medium text-slate-200 mb-4 flex items-center">
               <CalculatorIcon class="w-5 h-5 mr-2" />
               Price Breakdown
             </h3>
-            <div class="bg-slate-900/50 rounded-lg p-6 border border-slate-700">
+              <div class="bg-slate-900/50 rounded-lg p-6 border border-slate-700">
               <div class="space-y-3">
                 <!-- Base Price -->
                 <div class="flex justify-between items-center py-2">
@@ -149,8 +149,8 @@
                   <span class="text-slate-200 font-medium tabular-nums">{{ formatCurrency(breakdown.rushFee) }}</span>
                 </div>
 
-                <!-- Divider -->
-                <div class="border-t border-slate-600 my-4"></div>
+                  <!-- Divider -->
+                  <div class="border-t border-slate-700 my-4"></div>
 
                 <!-- Total -->
                 <div class="flex justify-between items-center py-3">

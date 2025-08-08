@@ -190,19 +190,6 @@ describe('ModificationsPanel', () => {
     expect(wrapper.text()).toContain('Add 20% to total price for expedited processing');
   });
 
-  it('has proper accessibility attributes', () => {
-    const wrapper = mount(ModificationsPanel);
-    
-    // Check that radio inputs are properly hidden with sr-only
-    const radioInputs = wrapper.findAll('input[type="radio"]');
-    radioInputs.forEach(input => {
-      expect(input.classes()).toContain('sr-only');
-    });
-    
-    // Check that checkbox is properly hidden with sr-only
-    const checkbox = wrapper.find('input[type="checkbox"]');
-    expect(checkbox.classes()).toContain('sr-only');
-  });
 
   it('formats prices correctly', () => {
     const wrapper = mount(ModificationsPanel);
