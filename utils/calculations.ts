@@ -314,8 +314,8 @@ export function calculateMoldFee(size: string, quantity: number): MoldFeeCalcula
       throw new Error('Invalid quantity provided for mold fee calculation');
     }
 
-    // Check quantity exemption first (501+ pieces get waived fee)
-    if (quantity > MOLD_FEE_CONFIG.QUANTITY_EXEMPTION_THRESHOLD) {
+    // Check quantity exemption first (500+ pieces get waived fee)
+    if (quantity >= MOLD_FEE_CONFIG.QUANTITY_EXEMPTION_THRESHOLD) {
       return {
         fee: 0,
         waived: true,

@@ -69,7 +69,7 @@ export function calculateMoldFee(size: string, quantity: number): MoldFeeCalcula
     }
 
     // Check quantity exemption first (500+ pieces get waived fee)
-    if (quantity > MOLD_FEE_CONFIG.QUANTITY_EXEMPTION_THRESHOLD) {
+    if (quantity >= MOLD_FEE_CONFIG.QUANTITY_EXEMPTION_THRESHOLD) {
       return {
         fee: 0,
         waived: true,

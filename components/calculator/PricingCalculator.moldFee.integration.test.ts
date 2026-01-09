@@ -87,10 +87,10 @@ describe('PricingCalculator - Mold Fee Real-time Updates Integration', () => {
       const dieStruck = PRODUCTION_METHODS[0];
       calculator.setProductionMethod(dieStruck);
       
-      // Test exactly 500 quantity (should still apply mold fee)
+      // Test exactly 500 quantity (should waive mold fee)
       calculator.setSizeAndQuantity('1.50', 500);
-      expect(calculator.moldFeeInfo.value.waived).toBe(false);
-      expect(calculator.moldFeeInfo.value.fee).toBe(50.00);
+      expect(calculator.moldFeeInfo.value.waived).toBe(true);
+      expect(calculator.moldFeeInfo.value.fee).toBe(0);
       
       // Test high quantity (should waive mold fee) - use 1000 which should be available
       calculator.setSizeAndQuantity('1.50', 1000);
