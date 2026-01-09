@@ -845,16 +845,16 @@ describe('Mold Fee Functions - Comprehensive Tests', () => {
   });
 
   describe('calculateMoldFee', () => {
-    describe('Quantity exemption logic (≤500 vs 501+)', () => {
-      it('should apply mold fee for quantities 500 and below', () => {
-        // Test various sizes with quantities ≤ 500
+    describe('Quantity exemption logic (<500 vs 500+)', () => {
+      it('should apply mold fee for quantities below 500', () => {
+        // Test various sizes with quantities < 500
         const testCases = [
           { size: '0.75', quantity: 100, expectedFee: 50.00 },
           { size: '1.00', quantity: 200, expectedFee: 50.00 },
           { size: '1.25', quantity: 300, expectedFee: 50.00 },
           { size: '1.50', quantity: 400, expectedFee: 50.00 },
-          { size: '1.75', quantity: 500, expectedFee: 62.50 }, // exactly 500
-          { size: '2.00', quantity: 500, expectedFee: 75.00 }
+          { size: '1.75', quantity: 499, expectedFee: 62.50 },
+          { size: '2.00', quantity: 499, expectedFee: 75.00 }
         ];
 
         testCases.forEach(({ size, quantity, expectedFee }) => {
@@ -865,15 +865,15 @@ describe('Mold Fee Functions - Comprehensive Tests', () => {
         });
       });
 
-      it('should waive mold fee for quantities 501 and above', () => {
-        // Test various sizes with quantities > 500
+      it('should waive mold fee for quantities 500 and above', () => {
+        // Test various sizes with quantities >= 500
         const testCases = [
-          { size: '0.75', quantity: 501 },
-          { size: '1.00', quantity: 600 },
-          { size: '1.25', quantity: 750 },
-          { size: '1.50', quantity: 1000 },
-          { size: '1.75', quantity: 1500 },
-          { size: '2.00', quantity: 2000 }
+          { size: '0.75', quantity: 500 },
+          { size: '1.00', quantity: 500 },
+          { size: '1.25', quantity: 500 },
+          { size: '1.50', quantity: 501 },
+          { size: '1.75', quantity: 600 },
+          { size: '2.00', quantity: 1000 }
         ];
 
         testCases.forEach(({ size, quantity }) => {
@@ -885,11 +885,11 @@ describe('Mold Fee Functions - Comprehensive Tests', () => {
       });
 
       it('should handle edge case of exactly 500 quantity', () => {
-        // Requirement 4.5: exactly 500 should apply mold fee (exemption starts at 501+)
+        // Requirement 4.5: exactly 500 should waive mold fee (exemption starts at 500+)
         const result = calculateMoldFee('1.50', 500);
-        expect(result.fee).toBe(50.00);
-        expect(result.waived).toBe(false);
-        expect(result.reason).toBeUndefined();
+        expect(result.fee).toBe(0);
+        expect(result.waived).toBe(true);
+        expect(result.reason).toBe('High volume exemption (500+ qty)');
       });
 
       it('should handle edge case of exactly 501 quantity', () => {
@@ -912,14 +912,19 @@ describe('Mold Fee Functions - Comprehensive Tests', () => {
           // Size 1.75" = $62.50
           { size: '1.75', quantity: 100, expectedFee: 62.50, waived: false },
           { size: '1.75', quantity: 300, expectedFee: 62.50, waived: false },
-          { size: '1.75', quantity: 500, expectedFee: 62.50, waived: false },
+          { size: '1.75', quantity: 499, expectedFee: 62.50, waived: false },
           
           // Size ≥ 2.0" = $75.00
           { size: '2.00', quantity: 100, expectedFee: 75.00, waived: false },
           { size: '2.50', quantity: 200, expectedFee: 75.00, waived: false },
           { size: '3.00', quantity: 400, expectedFee: 75.00, waived: false },
           
-          // High quantity exemptions (all sizes)
+          // High quantity exemptions (all sizes) - 500+ gets waived
+          { size: '0.75', quantity: 500, expectedFee: 0, waived: true },
+          { size: '1.25', quantity: 500, expectedFee: 0, waived: true },
+          { size: '1.50', quantity: 500, expectedFee: 0, waived: true },
+          { size: '1.75', quantity: 500, expectedFee: 0, waived: true },
+          { size: '2.00', quantity: 500, expectedFee: 0, waived: true },
           { size: '0.75', quantity: 600, expectedFee: 0, waived: true },
           { size: '1.25', quantity: 750, expectedFee: 0, waived: true },
           { size: '1.50', quantity: 1000, expectedFee: 0, waived: true },

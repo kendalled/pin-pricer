@@ -104,7 +104,7 @@ describe('Integration tests with real pricing data', () => {
     expect(result.platingCost).toBe(1400); // 0.70 * 2000
     expect(result.backingCost).toBe(800); // 0.40 * 2000
     expect(result.packagingCost).toBe(8000); // 4.00 * 2000
-    expect(result.moldFee).toBe(0); // Waived for 2000 qty (>500)
+    expect(result.moldFee).toBe(0); // Waived for 2000 qty (>=500)
     expect(result.moldFeeWaived).toBe(true);
     expect(result.rushFee).toBe(2716); // (3380 + 0 + 1400 + 800 + 8000 + 0) * 0.20
     expect(result.total).toBe(16296); // 3380 + 0 + 1400 + 800 + 8000 + 0 + 2716
@@ -138,12 +138,12 @@ describe('Integration tests with real pricing data', () => {
 
 describe('Integration tests for mold fees with price breakdown', () => {
   describe('Mold fee calculation with various size/quantity combinations', () => {
-    it('should apply $50 mold fee for sizes ≤1.5" with quantity ≤500', () => {
+    it('should apply $50 mold fee for sizes ≤1.5" with quantity <500', () => {
       const testCases = [
         { size: '0.75', quantity: 100, expectedFee: 50 },
         { size: '1.00', quantity: 200, expectedFee: 50 },
         { size: '1.25', quantity: 300, expectedFee: 50 },
-        { size: '1.50', quantity: 500, expectedFee: 50 }
+        { size: '1.50', quantity: 499, expectedFee: 50 }
       ];
 
       testCases.forEach(({ size, quantity, expectedFee }) => {
@@ -165,7 +165,7 @@ describe('Integration tests for mold fees with price breakdown', () => {
       });
     });
 
-    it('should apply $62.50 mold fee for 1.75" size with quantity ≤500', () => {
+    it('should apply $62.50 mold fee for 1.75" size with quantity <500', () => {
       const selections: OrderSelections = {
         productionMethod: PRODUCTION_METHODS[1], // Soft Enamel
         platingType: PLATING_OPTIONS[1], // Polished Silver (free)
@@ -184,7 +184,7 @@ describe('Integration tests for mold fees with price breakdown', () => {
                                result.backingCost + result.packagingCost + result.rushFee + 62.50);
     });
 
-    it('should apply $75 mold fee for sizes ≥2.0" with quantity ≤500', () => {
+    it('should apply $75 mold fee for sizes ≥2.0" with quantity <500', () => {
       const selections: OrderSelections = {
         productionMethod: PRODUCTION_METHODS[2], // Silk Screen
         platingType: PLATING_OPTIONS[2], // Polished Copper (free)
@@ -203,11 +203,12 @@ describe('Integration tests for mold fees with price breakdown', () => {
                                result.backingCost + result.packagingCost + result.rushFee + 75);
     });
 
-    it('should waive mold fee for quantities >500 regardless of size', () => {
+    it('should waive mold fee for quantities >=500 regardless of size', () => {
       const testCases = [
-        { size: '0.75', quantity: 750 },
-        { size: '1.25', quantity: 1000 },
-        { size: '1.75', quantity: 2000 },
+        { size: '0.75', quantity: 500 },
+        { size: '1.25', quantity: 500 },
+        { size: '1.75', quantity: 750 },
+        { size: '2.00', quantity: 1000 },
         { size: '2.00', quantity: 750 }
       ];
 
@@ -303,12 +304,12 @@ describe('Integration tests for mold fees with price breakdown', () => {
 
   describe('Price breakdown updates when size or quantity changes affect mold fee', () => {
     it('should transition from mold fee applied to waived when quantity increases', () => {
-      // First calculation with quantity ≤500 (mold fee applies)
+      // First calculation with quantity <500 (mold fee applies)
       const selectionsLowQty: OrderSelections = {
         productionMethod: PRODUCTION_METHODS[0], // Die Struck
         platingType: PLATING_OPTIONS[0], // Polished Gold (free)
         size: '1.25',
-        quantity: 500,
+        quantity: 499,
         backing: BACKING_OPTIONS[0], // Butterfly Clutch (free)
         packaging: PACKAGING_OPTIONS[0], // Poly Bag (free)
         rushOrder: false
@@ -319,10 +320,10 @@ describe('Integration tests for mold fees with price breakdown', () => {
       expect(resultLowQty.moldFee).toBe(50);
       expect(resultLowQty.moldFeeWaived).toBe(false);
 
-      // Second calculation with quantity >500 (mold fee waived)
+      // Second calculation with quantity >=500 (mold fee waived)
       const selectionsHighQty: OrderSelections = {
         ...selectionsLowQty,
-        quantity: 750
+        quantity: 500
       };
 
       const resultHighQty = calculatePriceBreakdown(selectionsHighQty);
@@ -333,7 +334,7 @@ describe('Integration tests for mold fees with price breakdown', () => {
     });
 
     it('should transition from waived to applied when quantity decreases', () => {
-      // First calculation with quantity >500 (mold fee waived)
+      // First calculation with quantity >=500 (mold fee waived)
       const selectionsHighQty: OrderSelections = {
         productionMethod: PRODUCTION_METHODS[2], // Silk Screen
         platingType: PLATING_OPTIONS[3], // Antique Bronze (free)
@@ -349,7 +350,7 @@ describe('Integration tests for mold fees with price breakdown', () => {
       expect(resultHighQty.moldFee).toBe(0);
       expect(resultHighQty.moldFeeWaived).toBe(true);
 
-      // Second calculation with quantity ≤500 (mold fee applies)
+      // Second calculation with quantity <500 (mold fee applies)
       const selectionsLowQty: OrderSelections = {
         ...selectionsHighQty,
         quantity: 300
@@ -483,7 +484,7 @@ describe('Integration tests for mold fees with price breakdown', () => {
       expect(result.total).toBe(subtotal + result.rushFee);
     });
 
-    it('should handle edge case of exactly 500 quantity (mold fee should apply)', () => {
+    it('should handle edge case of exactly 500 quantity (mold fee should be waived)', () => {
       const selections: OrderSelections = {
         productionMethod: PRODUCTION_METHODS[0], // Die Struck
         platingType: PLATING_OPTIONS[0], // Polished Gold (free)
@@ -496,9 +497,9 @@ describe('Integration tests for mold fees with price breakdown', () => {
 
       const result = calculatePriceBreakdown(selections);
       
-      expect(result.moldFee).toBe(75); // Should apply fee for exactly 500
-      expect(result.moldFeeWaived).toBe(false);
-      expect(result.total).toBe(result.basePrice + result.moldFee);
+      expect(result.moldFee).toBe(0); // Should waive fee for exactly 500
+      expect(result.moldFeeWaived).toBe(true);
+      expect(result.total).toBe(result.basePrice); // No additional fees
     });
 
     it('should handle edge case of 501 quantity (mold fee should be waived)', () => {
@@ -514,7 +515,7 @@ describe('Integration tests for mold fees with price breakdown', () => {
 
       const result = calculatePriceBreakdown(selections);
       
-      expect(result.moldFee).toBe(0); // Should waive fee for 501+
+      expect(result.moldFee).toBe(0); // Should waive fee for 500+
       expect(result.moldFeeWaived).toBe(true);
       expect(result.total).toBe(result.basePrice); // No additional fees
     });
