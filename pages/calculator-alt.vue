@@ -396,7 +396,7 @@ import { computed, ref, watch } from 'vue';
 import { PRODUCTION_METHODS, PLATING_OPTIONS, BACKING_OPTIONS, PACKAGING_OPTIONS, SIZES, QUANTITIES } from '~/data/pricing';
 import type { ProductionMethod, PlatingOption, BackingOption, PackagingOption } from '~/types/pricing';
 import { usePricingCalculator } from '~/composables/usePricingCalculator';
-import { calculateMoldFee } from '~/utils/calculationsSimple';
+import { calculateMoldFee } from '~/utils/calculations';
 
 // Source data (same as real calculator)
 const productionMethods: ProductionMethod[] = PRODUCTION_METHODS;

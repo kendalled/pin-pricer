@@ -11,7 +11,7 @@
     </div>
 
     <!-- Progress Indicator -->
-    <div 
+    <div
       class="flex flex-row items-center justify-center space-x-2 sm:space-x-4 mb-6 xs:mb-8"
       role="progressbar"
       aria-label="Calculator progress"
@@ -22,8 +22,8 @@
       <div class="flex items-center space-x-1 sm:space-x-2">
         <div :class="[
           'w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium transition-colors',
-          state.selectedProductionMethod 
-            ? 'bg-blue-600 text-white' 
+          state.selectedProductionMethod
+            ? 'bg-blue-600 text-white'
             : 'bg-slate-700 text-slate-400'
         ]">
           1
@@ -35,36 +35,17 @@
           Production
         </span>
       </div>
-      
+
       <div class="hidden sm:block w-4 h-0.5 bg-slate-700"></div>
-      
-      <div class="flex items-center space-x-1 sm:space-x-2">
-        <div :class="[
-          'w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium transition-colors',
-          state.selectedPlatingType 
-            ? 'bg-blue-600 text-white' 
-            : 'bg-slate-700 text-slate-400'
-        ]">
-          2
-        </div>
-        <span :class="[
-          'text-xs sm:text-sm font-medium',
-          state.selectedPlatingType ? 'text-slate-200' : 'text-slate-400'
-        ]">
-          Plating
-        </span>
-      </div>
-      
-      <div class="hidden sm:block w-4 h-0.5 bg-slate-700"></div>
-      
+
       <div class="flex items-center space-x-1 sm:space-x-2">
         <div :class="[
           'w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium transition-colors',
           (state.selectedSize && state.selectedQuantity)
-            ? 'bg-blue-600 text-white' 
+            ? 'bg-blue-600 text-white'
             : 'bg-slate-700 text-slate-400'
         ]">
-          3
+          2
         </div>
         <span :class="[
           'text-xs sm:text-sm font-medium',
@@ -73,14 +54,33 @@
           Size
         </span>
       </div>
-      
+
       <div class="hidden sm:block w-4 h-0.5 bg-slate-700"></div>
-      
+
+      <div class="flex items-center space-x-1 sm:space-x-2">
+        <div :class="[
+          'w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium transition-colors',
+          state.selectedPlatingType
+            ? 'bg-blue-600 text-white'
+            : 'bg-slate-700 text-slate-400'
+        ]">
+          3
+        </div>
+        <span :class="[
+          'text-xs sm:text-sm font-medium',
+          state.selectedPlatingType ? 'text-slate-200' : 'text-slate-400'
+        ]">
+          Plating
+        </span>
+      </div>
+
+      <div class="hidden sm:block w-4 h-0.5 bg-slate-700"></div>
+
       <div class="flex items-center space-x-1 sm:space-x-2">
         <div :class="[
           'w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium transition-colors',
           (state.selectedBacking && state.selectedPackaging)
-            ? 'bg-blue-600 text-white' 
+            ? 'bg-blue-600 text-white'
             : 'bg-slate-700 text-slate-400'
         ]">
           4
@@ -138,18 +138,7 @@
           <div v-else class="w-4 h-4 border-2 border-blue-400 rounded-full"></div>
           <span>Production Method</span>
         </div>
-        
-        <div :class="[
-          'flex items-center space-x-2 p-2 rounded',
-          state.selectedPlatingType ? 'text-green-300 bg-green-900/20' : 'text-blue-300 bg-blue-900/20'
-        ]">
-          <svg v-if="state.selectedPlatingType" class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
-            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-          </svg>
-          <div v-else class="w-4 h-4 border-2 border-blue-400 rounded-full"></div>
-          <span>Plating Type</span>
-        </div>
-        
+
         <div :class="[
           'flex items-center space-x-2 p-2 rounded',
           (state.selectedSize && state.selectedQuantity) ? 'text-green-300 bg-green-900/20' : 'text-blue-300 bg-blue-900/20'
@@ -160,7 +149,18 @@
           <div v-else class="w-4 h-4 border-2 border-blue-400 rounded-full"></div>
           <span>Size & Quantity</span>
         </div>
-        
+
+        <div :class="[
+          'flex items-center space-x-2 p-2 rounded',
+          state.selectedPlatingType ? 'text-green-300 bg-green-900/20' : 'text-blue-300 bg-blue-900/20'
+        ]">
+          <svg v-if="state.selectedPlatingType" class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+          </svg>
+          <div v-else class="w-4 h-4 border-2 border-blue-400 rounded-full"></div>
+          <span>Plating Type</span>
+        </div>
+
         <div :class="[
           'flex items-center space-x-2 p-2 rounded',
           (state.selectedBacking && state.selectedPackaging) ? 'text-green-300 bg-green-900/20' : 'text-blue-300 bg-blue-900/20'
@@ -199,37 +199,12 @@
 
     <div class="border-t border-slate-700 my-6 xs:my-8"></div>
 
-    <!-- Step 2: Plating Type Selection -->
+    <!-- Step 2: Size and Quantity Selection -->
     <Card v-if="state.selectedProductionMethod">
       <template #header>
         <div class="flex items-center justify-between">
           <h2 class="text-xl font-semibold text-slate-50">
-            Step 2: Choose Plating Type
-          </h2>
-          <Badge v-if="validationErrors.platingType" variant="error" size="sm">
-            Required
-          </Badge>
-        </div>
-      </template>
-      
-      <PlatingTypeSelector
-        :selected-plating="state.selectedPlatingType"
-        @update:selected-plating="handlePlatingTypeChange"
-      />
-      
-      <div v-if="validationErrors.platingType" class="mt-3 text-red-400 text-sm">
-        {{ validationErrors.platingType }}
-      </div>
-    </Card>
-
-    <div class="border-t border-slate-700 my-6 xs:my-8"></div>
-
-    <!-- Step 3: Size and Quantity Selection -->
-    <Card v-if="state.selectedPlatingType">
-      <template #header>
-        <div class="flex items-center justify-between">
-          <h2 class="text-xl font-semibold text-slate-50">
-            Step 3: Select Size & Quantity
+            Step 2: Select Size & Quantity
           </h2>
           <div class="flex gap-2">
             <Badge v-if="validationErrors.size" variant="error" size="sm">
@@ -241,7 +216,7 @@
           </div>
         </div>
       </template>
-      
+
       <PricingTable
         v-if="state.selectedProductionMethod"
         :plating-type="state.selectedProductionMethod"
@@ -249,7 +224,7 @@
         :selected-quantity="state.selectedQuantity"
         @selection-change="handleSizeQuantityChange"
       />
-      
+
       <div v-if="validationErrors.size || validationErrors.quantity" class="mt-3 text-red-400 text-sm">
         <div v-if="validationErrors.size">{{ validationErrors.size }}</div>
         <div v-if="validationErrors.quantity">{{ validationErrors.quantity }}</div>
@@ -258,8 +233,33 @@
 
     <div class="border-t border-slate-700 my-6 xs:my-8"></div>
 
-    <!-- Step 4: Modifications -->
+    <!-- Step 3: Plating Type Selection -->
     <Card v-if="state.selectedSize && state.selectedQuantity">
+      <template #header>
+        <div class="flex items-center justify-between">
+          <h2 class="text-xl font-semibold text-slate-50">
+            Step 3: Choose Plating Type
+          </h2>
+          <Badge v-if="validationErrors.platingType" variant="error" size="sm">
+            Required
+          </Badge>
+        </div>
+      </template>
+
+      <PlatingTypeSelector
+        :selected-plating="state.selectedPlatingType"
+        @update:selected-plating="handlePlatingTypeChange"
+      />
+
+      <div v-if="validationErrors.platingType" class="mt-3 text-red-400 text-sm">
+        {{ validationErrors.platingType }}
+      </div>
+    </Card>
+
+    <div class="border-t border-slate-700 my-6 xs:my-8"></div>
+
+    <!-- Step 4: Modifications -->
+    <Card v-if="state.selectedPlatingType">
       <template #header>
         <div class="flex items-center justify-between">
           <h2 class="text-xl font-semibold text-slate-50">
@@ -347,13 +347,13 @@
                   <div class="w-2 h-2 bg-slate-500 rounded-full"></div>
                   <span>Select production method</span>
                 </li>
-                <li v-if="!state.selectedPlatingType" class="flex items-center space-x-2">
-                  <div class="w-2 h-2 bg-slate-500 rounded-full"></div>
-                  <span>Select plating type</span>
-                </li>
                 <li v-if="!state.selectedSize || !state.selectedQuantity" class="flex items-center space-x-2">
                   <div class="w-2 h-2 bg-slate-500 rounded-full"></div>
                   <span>Choose size and quantity</span>
+                </li>
+                <li v-if="!state.selectedPlatingType" class="flex items-center space-x-2">
+                  <div class="w-2 h-2 bg-slate-500 rounded-full"></div>
+                  <span>Select plating type</span>
                 </li>
                 <li v-if="!state.selectedBacking" class="flex items-center space-x-2">
                   <div class="w-2 h-2 bg-slate-500 rounded-full"></div>
@@ -491,8 +491,8 @@ const handleErrorRecovery = () => {
 const getProgressValue = (): number => {
   let progress = 0;
   if (state.selectedProductionMethod) progress++;
-  if (state.selectedPlatingType) progress++;
   if (state.selectedSize && state.selectedQuantity) progress++;
+  if (state.selectedPlatingType) progress++;
   if (state.selectedBacking && state.selectedPackaging) progress++;
   return progress;
 };
