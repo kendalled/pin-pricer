@@ -31,27 +31,15 @@ bun run test
 
 ```
 components/
-├── calculator/               # Original pricing calculator components
-├── ui/                      # Reusable UI components  
-├── PricingCalculatorSimple.vue  # Simplified single-component calculator
+├── calculator/              # Pricing calculator components
+├── ui/                      # Reusable UI components
 composables/                 # Vue composables (pricing logic)
-data/                       # Static pricing matrices
+data/                        # Static pricing matrices
 types/
-├── pricing.ts              # Original type definitions
-├── pricingSimple.ts        # Simplified type definitions
+├── pricing.ts               # Type definitions
 utils/
-├── calculations.ts         # Original calculation utilities (667 lines)
-├── calculationsSimple.ts   # Simplified calculation utilities (~200 lines)
+├── calculations.ts          # Calculation utilities
 ```
-
-## Architecture Notes
-
-The project includes both the original complex system and a new simplified system:
-
-- **Original System**: 6+ components + 353-line composable + 667-line utils (~1000+ lines)
-- **Simplified System**: 1 component + ~200-line utils (~600 lines total)
-
-The simplified system maintains 100% functionality while reducing code complexity by ~60%. Both systems are available via feature flag in `pages/index.vue`.
 
 ## Key Features
 
