@@ -1,6 +1,6 @@
 # Pin Pricer
 
-A pricing calculator for custom lapel pins and challenge coins. Built with Nuxt 3 + TypeScript.
+A pricing calculator for custom lapel pins and challenge coins. Built with Nuxt 4 + TypeScript.
 
 ## What it does
 
@@ -21,9 +21,9 @@ bun run test
 
 ## Tech Stack
 
-- **Nuxt 3** with Vue 3 Composition API
+- **Nuxt 4** with Vue 3 Composition API
 - **TypeScript** for type safety
-- **TailwindCSS** for styling with accessibility features
+- **TailwindCSS v4** for styling with accessibility features
 - **Vitest** for testing
 - **Heroicons** for UI icons
 
