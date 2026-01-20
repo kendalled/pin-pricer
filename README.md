@@ -30,15 +30,16 @@ bun run test
 ## Project Structure
 
 ```
-components/
-├── calculator/              # Pricing calculator components
-├── ui/                      # Reusable UI components
-composables/                 # Vue composables (pricing logic)
-data/                        # Static pricing matrices
-types/
-├── pricing.ts               # Type definitions
-utils/
-├── calculations.ts          # Calculation utilities
+app/
+├── components/
+│   ├── calculator/          # Pricing calculator components
+│   ├── ui/                  # Reusable UI components
+├── composables/             # Vue composables (pricing logic)
+├── data/                    # Static pricing matrices
+├── types/
+│   ├── pricing.ts           # Type definitions
+├── utils/
+│   ├── calculations.ts      # Calculation utilities
 ```
 
 ## Key Features
