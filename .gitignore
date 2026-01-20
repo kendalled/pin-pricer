@@ -25,3 +25,5 @@ logs
 /.kiro/*
 CLAUDE.md
 calculator_prompt.md
+AGENTS.md
+pages/demos/

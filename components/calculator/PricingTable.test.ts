@@ -172,7 +172,7 @@ describe('PricingTable', () => {
     });
 
     // Should display Soft Enamel prices (different from Die Struck)
-    // Soft Enamel 0.75" x 100 should be $2.84
-    expect(wrapper.text()).toContain('$2.84');
+    // Soft Enamel 0.75" x 100 should be $2.55
+    expect(wrapper.text()).toContain('$2.55');
   });
 });

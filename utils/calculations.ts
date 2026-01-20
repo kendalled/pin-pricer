@@ -1,6 +1,57 @@
 import type { ProductionMethod, PlatingOption, BackingOption, PackagingOption, OrderSelections, PriceBreakdown, MoldFeeCalculationResult } from '~/types/pricing';
 import { MOLD_FEE_CONFIG } from '~/types/pricing';
 
+// Standard quantity tiers for interpolation
+const STANDARD_QUANTITIES = [100, 200, 300, 500, 750, 1000, 2000];
+
+/**
+ * Interpolate unit price for custom quantities not in standard tiers
+ */
+export function interpolateUnitPrice(
+  productionMethod: ProductionMethod,
+  size: string,
+  quantity: number
+): number {
+  const pricing = productionMethod.pricing[size];
+  if (!pricing) {
+    throw new Error(`No pricing data for size "${size}"`);
+  }
+
+  // If quantity matches a tier exactly, return that price
+  if (pricing[quantity] !== undefined) {
+    return pricing[quantity];
+  }
+
+  const sortedQuantities = [...STANDARD_QUANTITIES].sort((a, b) => a - b);
+
+  // Handle edge cases (below minimum or above maximum)
+  if (quantity <= sortedQuantities[0]) {
+    return pricing[sortedQuantities[0]];
+  }
+  if (quantity >= sortedQuantities[sortedQuantities.length - 1]) {
+    return pricing[sortedQuantities[sortedQuantities.length - 1]];
+  }
+
+  // Find bounding quantities for interpolation
+  let lowerQty = sortedQuantities[0];
+  let upperQty = sortedQuantities[sortedQuantities.length - 1];
+
+  for (let i = 0; i < sortedQuantities.length - 1; i++) {
+    if (quantity > sortedQuantities[i] && quantity < sortedQuantities[i + 1]) {
+      lowerQty = sortedQuantities[i];
+      upperQty = sortedQuantities[i + 1];
+      break;
+    }
+  }
+
+  // Linear interpolation
+  const lowerPrice = pricing[lowerQty];
+  const upperPrice = pricing[upperQty];
+  const ratio = (quantity - lowerQty) / (upperQty - lowerQty);
+
+  return lowerPrice + (upperPrice - lowerPrice) * ratio;
+}
+
 /**
  * Calculate the base price for a given production method, size, and quantity
  */
@@ -21,9 +72,11 @@ export function calculateBasePrice(
       throw new Error('Invalid quantity provided');
     }
 
-    const unitPrice = productionMethod.pricing[size]?.[quantity];
+    // Try to get direct price, otherwise interpolate
+    let unitPrice = productionMethod.pricing[size]?.[quantity];
     if (unitPrice === undefined || typeof unitPrice !== 'number' || unitPrice <= 0) {
-      throw new Error(`Invalid size "${size}" or quantity "${quantity}" for production method "${productionMethod.name}"`);
+      // Use interpolation for custom quantities
+      unitPrice = interpolateUnitPrice(productionMethod, size, quantity);
     }
     
     const basePrice = unitPrice * quantity;
@@ -58,9 +111,11 @@ export function getUnitPrice(
       throw new Error('Invalid quantity provided');
     }
 
-    const unitPrice = productionMethod.pricing[size]?.[quantity];
+    // Try to get direct price, otherwise interpolate
+    let unitPrice = productionMethod.pricing[size]?.[quantity];
     if (unitPrice === undefined || typeof unitPrice !== 'number' || unitPrice <= 0) {
-      throw new Error(`Invalid size "${size}" or quantity "${quantity}" for production method "${productionMethod.name}"`);
+      // Use interpolation for custom quantities
+      unitPrice = interpolateUnitPrice(productionMethod, size, quantity);
     }
     return unitPrice;
   } catch (error) {
@@ -575,8 +630,8 @@ export function validateOrderSelections(selections: Partial<OrderSelections>): s
   
   if (!selections.quantity) {
     errors.push('Quantity selection is required');
-  } else if (![100, 200, 300, 500, 750, 1000, 2000].includes(selections.quantity)) {
-    errors.push('Invalid quantity selection');
+  } else if (typeof selections.quantity !== 'number' || selections.quantity < 1 || !Number.isInteger(selections.quantity)) {
+    errors.push('Invalid quantity selection - must be a positive whole number');
   }
   
   if (!selections.backing) {

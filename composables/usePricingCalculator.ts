@@ -169,11 +169,11 @@ export function usePricingCalculator() {
     state.selectedProductionMethod = productionMethod;
     clearValidationError('productionMethod');
     
-    // Reset size/quantity selection when production method changes
-    // to ensure pricing matrix compatibility
-    if (state.selectedSize && state.selectedQuantity) {
-      const hasValidPricing = productionMethod.pricing[state.selectedSize]?.[state.selectedQuantity];
-      if (!hasValidPricing) {
+    // Reset size selection when production method changes if the size doesn't exist
+    // Custom quantities are allowed, so we only validate the size exists
+    if (state.selectedSize) {
+      const hasSizeData = productionMethod.pricing[state.selectedSize];
+      if (!hasSizeData) {
         state.selectedSize = null;
         state.selectedQuantity = null;
       }
@@ -191,17 +191,26 @@ export function usePricingCalculator() {
       return;
     }
 
-    // Validate that the combination exists in the pricing matrix
-    const unitPrice = state.selectedProductionMethod.pricing[size]?.[quantity];
-    if (unitPrice === undefined) {
-      setValidationError('general', [`Invalid size "${size}" or quantity "${quantity}" combination`]);
+    // Validate the size exists in the pricing matrix
+    const sizeData = state.selectedProductionMethod.pricing[size];
+    if (!sizeData) {
+      setValidationError('general', [`Invalid size "${size}"`]);
       return;
     }
 
+    // Validate quantity is a positive integer
+    if (!Number.isInteger(quantity) || quantity < 1) {
+      setValidationError('general', [`Invalid quantity "${quantity}" - must be a positive whole number`]);
+      return;
+    }
+
+    // For custom quantities, we allow any positive integer
+    // The price will be interpolated in calculatePriceBreakdown
     state.selectedSize = size;
     state.selectedQuantity = quantity;
     clearValidationError('size');
     clearValidationError('quantity');
+    clearValidationError('general');
   };
 
   const setBacking = (backing: BackingOption) => {
