@@ -79,3 +79,31 @@ export const MOLD_FEE_CONFIG = {
 
 // Legacy type alias for backward compatibility during transition
 export type PlatingType = ProductionMethod;
+
+// ============================================
+// COIN TYPES
+// ============================================
+
+export interface CoinColorOption {
+  id: string;
+  name: string;
+  pricing: PricingMatrix;
+}
+
+export interface CoinOrderSelections {
+  colorOption: CoinColorOption;
+  platingType: PlatingOption;
+  size: string;
+  quantity: number;
+  packaging: PackagingOption;
+  rushOrder: boolean;
+}
+
+export interface CoinPriceBreakdown {
+  basePrice: number;
+  platingCost: number;
+  packagingCost: number;
+  rushFee: number;
+  total: number;
+  unitPrice: number;
+}
