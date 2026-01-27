@@ -75,6 +75,13 @@
                   </div>
                 </div>
                 <div class="flex justify-between items-center py-2 border-b border-slate-700">
+                  <span class="text-slate-400">Design Type:</span>
+                  <div class="flex items-center gap-2">
+                    <span class="text-slate-200 font-medium">{{ selections.designSides === 'two-sided' ? 'Two-Sided' : 'One-Sided' }}</span>
+                    <Badge v-if="selections.designSides === 'two-sided'" variant="info" size="sm">2× mold fee</Badge>
+                  </div>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-slate-700">
                   <span class="text-slate-400">Rush Order:</span>
                   <div class="flex items-center gap-2">
                     <span class="text-slate-200 font-medium">{{ selections.rushOrder ? 'Yes' : 'No' }}</span>
@@ -124,6 +131,21 @@
                     </span>
                   </div>
                   <span class="text-slate-200 font-medium tabular-nums">{{ formatCurrency(breakdown.packagingCost) }}</span>
+                </div>
+
+                <!-- Mold Fee -->
+                <div v-if="breakdown.moldFee > 0 || breakdown.moldFeeWaived" class="flex justify-between items-center py-2">
+                  <div class="flex items-center gap-2">
+                    <span class="text-slate-300">Mold Fee</span>
+                    <Badge v-if="selections.designSides === 'two-sided' && !breakdown.moldFeeWaived" variant="info" size="sm">2× (two-sided)</Badge>
+                    <Badge v-if="breakdown.moldFeeWaived" variant="success" size="sm">Waived (300+ qty)</Badge>
+                  </div>
+                  <span 
+                    class="font-medium tabular-nums"
+                    :class="breakdown.moldFeeWaived ? 'text-green-400' : 'text-slate-200'"
+                  >
+                    {{ breakdown.moldFeeWaived ? 'Waived' : formatCurrency(breakdown.moldFee) }}
+                  </span>
                 </div>
 
                 <!-- Rush Fee -->
@@ -207,6 +229,10 @@
                 <td>{{ selections.packaging.name }}{{ selections.packaging.isFree ? ' (FREE)' : ` (${formatCurrency(selections.packaging.price)}/pc)` }}</td>
               </tr>
               <tr>
+                <td>Design Type:</td>
+                <td>{{ selections.designSides === 'two-sided' ? 'Two-Sided (2× mold fee)' : 'One-Sided' }}</td>
+              </tr>
+              <tr>
                 <td>Rush Order:</td>
                 <td>{{ selections.rushOrder ? 'Yes (+20%)' : 'No' }}</td>
               </tr>
@@ -229,6 +255,10 @@
               <tr v-if="breakdown.packagingCost > 0">
                 <td>Packaging Cost ({{ selections.quantity.toLocaleString() }} × {{ formatCurrency(selections.packaging.price) }}):</td>
                 <td class="amount">{{ formatCurrency(breakdown.packagingCost) }}</td>
+              </tr>
+              <tr v-if="breakdown.moldFee > 0 || breakdown.moldFeeWaived">
+                <td>Mold Fee{{ selections.designSides === 'two-sided' && !breakdown.moldFeeWaived ? ' (2× two-sided)' : '' }}{{ breakdown.moldFeeWaived ? ' (Waived - 300+ qty)' : '' }}:</td>
+                <td class="amount">{{ breakdown.moldFeeWaived ? 'Waived' : formatCurrency(breakdown.moldFee) }}</td>
               </tr>
               <tr v-if="breakdown.rushFee > 0">
                 <td>Rush Fee (20% of subtotal):</td>

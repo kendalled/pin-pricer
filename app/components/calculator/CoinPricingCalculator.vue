@@ -273,8 +273,10 @@
       
       <CoinModificationsPanel
         :selected-packaging="state.selectedPackaging"
+        :design-sides="state.designSides"
         :rush-order="state.rushOrder"
         @packaging-change="handlePackagingChange"
+        @design-sides-change="handleDesignSidesChange"
         @rush-toggle="handleRushToggle"
       />
       
@@ -391,7 +393,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import type { CoinColorOption, PlatingOption, PackagingOption, CoinOrderSelections } from '~/types/pricing';
+import type { CoinColorOption, PlatingOption, PackagingOption, CoinOrderSelections, CoinDesignSides } from '~/types/pricing';
 import { useCoinPricingCalculator } from '~/composables/useCoinPricingCalculator';
 import CoinColorSelector from '~/components/CoinColorSelector.vue';
 import PlatingTypeSelector from '~/components/PlatingTypeSelector.vue';
@@ -416,6 +418,7 @@ const {
   setPlatingType,
   setSizeAndQuantity,
   setPackaging,
+  setDesignSides,
   setRushOrder,
   resetSelections,
   clearAllValidationErrors
@@ -439,6 +442,10 @@ const handleSizeQuantityChange = (size: string, quantity: number) => {
 
 const handlePackagingChange = (packaging: PackagingOption) => {
   setPackaging(packaging);
+};
+
+const handleDesignSidesChange = (sides: CoinDesignSides) => {
+  setDesignSides(sides);
 };
 
 const handleRushToggle = (enabled: boolean) => {

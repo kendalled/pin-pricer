@@ -87,6 +87,28 @@
         <span class="font-medium text-sm xs:text-base">{{ safeFormatCurrency(breakdown.rushFee) }}</span>
       </div>
       
+      <!-- Mold Fee (show when applicable or waived) -->
+      <div 
+        v-if="breakdown.moldFee > 0 || breakdown.moldFeeWaived" 
+        class="flex flex-col xs:flex-row xs:justify-between xs:items-center gap-1 xs:gap-2 text-slate-200 high-contrast:text-slate-100"
+      >
+        <span class="text-sm xs:text-base">
+          Mold Fee
+          <span 
+            v-if="breakdown.moldFeeWaived" 
+            class="text-xs xs:text-sm text-green-400 high-contrast:text-green-300 ml-1"
+          >
+            (Waived - 300+ qty)
+          </span>
+        </span>
+        <span 
+          class="font-medium text-sm xs:text-base"
+          :class="breakdown.moldFeeWaived ? 'text-green-400 high-contrast:text-green-300' : ''"
+        >
+          {{ breakdown.moldFeeWaived ? 'Waived' : safeFormatCurrency(breakdown.moldFee) }}
+        </span>
+      </div>
+      
       <!-- Divider -->
       <hr class="border-t border-slate-600 my-3 xs:my-4 high-contrast:border-slate-300">
       
@@ -123,10 +145,10 @@ const props = withDefaults(defineProps<Props>(), {
 const hasInvalidBreakdown = computed(() => {
   if (!props.breakdown) return false;
   
-  const { basePrice, platingCost, packagingCost, rushFee, total, unitPrice } = props.breakdown;
+  const { basePrice, platingCost, packagingCost, rushFee, moldFee, total, unitPrice } = props.breakdown;
   
   // Check for invalid numbers
-  const values = [basePrice, platingCost, packagingCost, rushFee, total, unitPrice];
+  const values = [basePrice, platingCost, packagingCost, rushFee, moldFee, total, unitPrice];
   return values.some(value => 
     typeof value !== 'number' || 
     isNaN(value) || 

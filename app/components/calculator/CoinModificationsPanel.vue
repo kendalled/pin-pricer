@@ -1,5 +1,92 @@
 <template>
   <div class="space-y-6 xs:space-y-8">
+    <!-- Design Sides (affects mold fee) -->
+    <fieldset>
+      <legend class="text-lg font-semibold text-slate-200 mb-4 high-contrast:text-white">
+        Design Type
+        <span class="text-sm font-normal text-slate-400 ml-2">(affects mold fee)</span>
+      </legend>
+      <div 
+        class="grid grid-cols-2 gap-3 xs:gap-4"
+        role="radiogroup"
+        aria-labelledby="design-sides-legend"
+      >
+        <label
+          :class="getOptionClasses(designSides === 'one-sided')"
+          @keydown.enter="selectDesignSides('one-sided')"
+          @keydown.space.prevent="selectDesignSides('one-sided')"
+        >
+          <input
+            type="radio"
+            name="design-sides"
+            value="one-sided"
+            :checked="designSides === 'one-sided'"
+            @change="selectDesignSides('one-sided')"
+            class="sr-only"
+          />
+          <div class="flex-1 min-w-0 hover-lift">
+            <div class="flex flex-col xs:flex-row xs:items-center xs:justify-between gap-1 xs:gap-2">
+              <span class="font-medium text-sm xs:text-base leading-tight">One-Sided Design</span>
+              <span class="text-sm text-slate-400 high-contrast:text-slate-300">1× mold fee</span>
+            </div>
+          </div>
+          <!-- Radio indicator -->
+          <div
+            :class="[
+              'ml-3 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-250 flex-shrink-0',
+              designSides === 'one-sided'
+                ? 'border-blue-500 bg-blue-500 high-contrast:border-blue-300 high-contrast:bg-blue-700'
+                : 'border-slate-500 high-contrast:border-slate-300'
+            ]"
+            aria-hidden="true"
+          >
+            <div
+              v-if="designSides === 'one-sided'"
+              class="w-2.5 h-2.5 rounded-full bg-white"
+            />
+          </div>
+        </label>
+
+        <label
+          :class="getOptionClasses(designSides === 'two-sided')"
+          @keydown.enter="selectDesignSides('two-sided')"
+          @keydown.space.prevent="selectDesignSides('two-sided')"
+        >
+          <input
+            type="radio"
+            name="design-sides"
+            value="two-sided"
+            :checked="designSides === 'two-sided'"
+            @change="selectDesignSides('two-sided')"
+            class="sr-only"
+          />
+          <div class="flex-1 min-w-0 hover-lift">
+            <div class="flex flex-col xs:flex-row xs:items-center xs:justify-between gap-1 xs:gap-2">
+              <span class="font-medium text-sm xs:text-base leading-tight">Two-Sided Design</span>
+              <span class="text-sm text-slate-400 high-contrast:text-slate-300">2× mold fee</span>
+            </div>
+          </div>
+          <!-- Radio indicator -->
+          <div
+            :class="[
+              'ml-3 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-250 flex-shrink-0',
+              designSides === 'two-sided'
+                ? 'border-blue-500 bg-blue-500 high-contrast:border-blue-300 high-contrast:bg-blue-700'
+                : 'border-slate-500 high-contrast:border-slate-300'
+            ]"
+            aria-hidden="true"
+          >
+            <div
+              v-if="designSides === 'two-sided'"
+              class="w-2.5 h-2.5 rounded-full bg-white"
+            />
+          </div>
+        </label>
+      </div>
+    </fieldset>
+
+    <div class="border-t border-slate-700 my-4"></div>
+
     <!-- Packaging Options -->
     <fieldset>
       <legend class="text-lg font-semibold text-slate-200 mb-4 high-contrast:text-white">
@@ -117,27 +204,38 @@
 </template>
 
 <script setup lang="ts">
-import type { PackagingOption } from '~/types/pricing';
+import { computed } from 'vue';
+import type { PackagingOption, CoinDesignSides } from '~/types/pricing';
 import { PACKAGING_OPTIONS } from '~/data/pricing';
 
 interface Props {
   selectedPackaging?: PackagingOption | null;
+  designSides?: CoinDesignSides;
   rushOrder?: boolean;
 }
 
 interface Emits {
   (e: 'packaging-change', option: PackagingOption): void;
+  (e: 'design-sides-change', sides: CoinDesignSides): void;
   (e: 'rush-toggle', enabled: boolean): void;
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   selectedPackaging: null,
+  designSides: 'one-sided',
   rushOrder: false
 });
 
 const emit = defineEmits<Emits>();
 
 const packagingOptions = PACKAGING_OPTIONS;
+
+// Computed for template binding
+const designSides = computed(() => props.designSides);
+
+const selectDesignSides = (sides: CoinDesignSides) => {
+  emit('design-sides-change', sides);
+};
 
 const selectPackaging = (option: PackagingOption) => {
   try {

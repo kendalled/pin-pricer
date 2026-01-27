@@ -4,8 +4,11 @@ import type {
   PlatingOption, 
   PackagingOption, 
   CoinOrderSelections, 
-  CoinPriceBreakdown 
+  CoinPriceBreakdown,
+  MoldFeeCalculationResult,
+  CoinDesignSides
 } from '~/types/pricing';
+import { COIN_MOLD_FEE_CONFIG } from '~/types/pricing';
 import { 
   COIN_COLOR_OPTIONS,
   PLATING_OPTIONS, 
@@ -20,6 +23,7 @@ export interface CoinPricingCalculatorState {
   selectedSize: string | null;
   selectedQuantity: number | null;
   selectedPackaging: PackagingOption | null;
+  designSides: CoinDesignSides;
   rushOrder: boolean;
 }
 
@@ -120,14 +124,66 @@ function calculatePackagingCost(packaging: PackagingOption, quantity: number): n
 }
 
 /**
+ * Parse size string to numeric value
+ */
+function parseCoinSize(sizeString: string): number {
+  const trimmedSize = sizeString.trim();
+  const sizeNumber = parseFloat(trimmedSize);
+  if (isNaN(sizeNumber) || sizeNumber <= 0) {
+    throw new Error(`Invalid size format: ${sizeString}`);
+  }
+  return sizeNumber;
+}
+
+/**
+ * Get mold fee for a given size based on coin-specific thresholds
+ */
+function getMoldFeeForSize(sizeInches: number): number {
+  for (const threshold of COIN_MOLD_FEE_CONFIG.SIZE_THRESHOLDS) {
+    if (sizeInches <= threshold.maxSize) {
+      return threshold.fee;
+    }
+  }
+  return COIN_MOLD_FEE_CONFIG.SIZE_THRESHOLDS[COIN_MOLD_FEE_CONFIG.SIZE_THRESHOLDS.length - 1].fee;
+}
+
+/**
+ * Calculate mold fee with quantity exemption logic (coins: 300+ waived)
+ * For two-sided designs, the fee is applied twice
+ */
+function calculateMoldFee(size: string, quantity: number, designSides: CoinDesignSides): MoldFeeCalculationResult {
+  // Check quantity exemption first (300+ pieces get waived fee for coins)
+  if (quantity >= COIN_MOLD_FEE_CONFIG.QUANTITY_EXEMPTION_THRESHOLD) {
+    return {
+      fee: 0,
+      waived: true,
+      reason: 'High volume exemption (300+ qty)'
+    };
+  }
+
+  // Parse size and get fee
+  const sizeInches = parseCoinSize(size);
+  const baseFee = getMoldFeeForSize(sizeInches);
+  
+  // Apply fee twice for two-sided designs
+  const fee = designSides === 'two-sided' ? baseFee * 2 : baseFee;
+
+  return {
+    fee,
+    waived: false
+  };
+}
+
+/**
  * Calculate rush fee (20% of subtotal)
  */
 function calculateRushFee(
   basePrice: number,
   platingCost: number,
-  packagingCost: number
+  packagingCost: number,
+  moldFee: number
 ): number {
-  const subtotal = basePrice + platingCost + packagingCost;
+  const subtotal = basePrice + platingCost + packagingCost + moldFee;
   return subtotal * 0.20;
 }
 
@@ -150,17 +206,24 @@ function calculateCoinPriceBreakdown(selections: CoinOrderSelections): CoinPrice
   const platingCost = calculatePlatingCost(selections.platingType, selections.quantity);
   const packagingCost = calculatePackagingCost(selections.packaging, selections.quantity);
   
+  // Calculate mold fee (doubled for two-sided designs)
+  const moldFeeResult = calculateMoldFee(selections.size, selections.quantity, selections.designSides);
+  const moldFee = moldFeeResult.fee;
+  const moldFeeWaived = moldFeeResult.waived;
+  
   const rushFee = selections.rushOrder 
-    ? calculateRushFee(basePrice, platingCost, packagingCost)
+    ? calculateRushFee(basePrice, platingCost, packagingCost, moldFee)
     : 0;
   
-  const total = basePrice + platingCost + packagingCost + rushFee;
+  const total = basePrice + platingCost + packagingCost + moldFee + rushFee;
   
   return {
     basePrice,
     platingCost,
     packagingCost,
     rushFee,
+    moldFee,
+    moldFeeWaived,
     total,
     unitPrice
   };
@@ -174,6 +237,7 @@ export function useCoinPricingCalculator() {
     selectedSize: null,
     selectedQuantity: null,
     selectedPackaging: null,
+    designSides: 'one-sided',
     rushOrder: false
   });
 
@@ -199,6 +263,7 @@ export function useCoinPricingCalculator() {
       size: state.selectedSize || undefined,
       quantity: state.selectedQuantity || undefined,
       packaging: state.selectedPackaging || undefined,
+      designSides: state.designSides,
       rushOrder: state.rushOrder
     };
   });
@@ -289,6 +354,10 @@ export function useCoinPricingCalculator() {
     clearValidationError('packaging');
   };
 
+  const setDesignSides = (sides: CoinDesignSides) => {
+    state.designSides = sides;
+  };
+
   const setRushOrder = (enabled: boolean) => {
     state.rushOrder = enabled;
   };
@@ -299,6 +368,7 @@ export function useCoinPricingCalculator() {
     state.selectedSize = null;
     state.selectedQuantity = null;
     state.selectedPackaging = null;
+    state.designSides = 'one-sided';
     state.rushOrder = false;
     validationErrors.value = {};
   };
@@ -389,6 +459,7 @@ export function useCoinPricingCalculator() {
     setPlatingType,
     setSizeAndQuantity,
     setPackaging,
+    setDesignSides,
     setRushOrder,
     resetSelections,
     
