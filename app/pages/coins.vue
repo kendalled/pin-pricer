@@ -18,15 +18,15 @@
         <div class="flex items-center justify-between h-16 xs:h-18">
           <div class="flex items-center">
             <h1 class="text-lg xs:text-xl sm:text-2xl font-bold text-slate-50 high-contrast:text-white leading-tight">
-              Pin Price Calculator
+              Coin Price Calculator
             </h1>
           </div>
           <div class="flex items-center space-x-4">
             <NuxtLink 
-              to="/coins" 
+              to="/" 
               class="text-sm text-slate-400 hover:text-slate-200 transition-colors high-contrast:text-slate-300 high-contrast:hover:text-white"
             >
-              Coin Calculator
+              Pin Calculator
             </NuxtLink>
             <div class="hidden sm:block text-sm text-slate-400 high-contrast:text-slate-300">
               Professional Pricing Tool
@@ -45,7 +45,7 @@
     >
       <div class="max-w-7xl mx-auto px-3 xs:px-4 sm:px-6 lg:px-8 py-4 xs:py-6 sm:py-8">
         <!-- Calculator Component -->
-        <PricingCalculator />
+        <CoinPricingCalculator />
       </div>
     </main>
 
@@ -56,8 +56,8 @@
     >
       <div class="max-w-7xl mx-auto px-3 xs:px-4 sm:px-6 lg:px-8 py-4 xs:py-6">
         <div class="text-center text-slate-400 text-sm high-contrast:text-slate-300">
-          <p>&copy; {{ new Date().getFullYear() }} Pin Price Calculator</p>
-          <p class="mt-1">Get accurate pricing for your custom pins and coins</p>
+          <p>&copy; {{ new Date().getFullYear() }} Coin Price Calculator</p>
+          <p class="mt-1">Get accurate pricing for your custom challenge coins</p>
         </div>
       </div>
     </footer>
@@ -65,29 +65,29 @@
 </template>
 
 <script setup lang="ts">
-import PricingCalculator from '~/components/calculator/PricingCalculator.vue';
+import CoinPricingCalculator from '~/components/calculator/CoinPricingCalculator.vue';
 
 // Set page meta for SEO and accessibility
 useHead({
-  title: 'Pin Price Calculator',
+  title: 'Coin Price Calculator',
   meta: [
     {
       name: 'description',
-      content: 'Professional pricing calculator for custom lapel pins and challenge coins. Get instant quotes with detailed breakdowns for different plating types, sizes, and modifications.'
+      content: 'Professional pricing calculator for custom challenge coins. Get instant quotes with detailed breakdowns for different plating types, sizes, and color options.'
     },
     {
       name: 'keywords',
-      content: 'lapel pin calculator, challenge coin pricing, custom pins, pricing tool, quote generator'
+      content: 'challenge coin calculator, custom coin pricing, coin pricing tool, quote generator'
     }
   ]
 });
 
 // Ensure dark mode theme is applied consistently
 useSeoMeta({
-  title: 'Pin Price Calculator',
-  ogTitle: 'Pin Price Calculator',
-  description: 'Professional pricing calculator for custom lapel pins and challenge coins',
-  ogDescription: 'Get instant quotes with detailed breakdowns for different plating types, sizes, and modifications',
+  title: 'Coin Price Calculator',
+  ogTitle: 'Coin Price Calculator',
+  description: 'Professional pricing calculator for custom challenge coins',
+  ogDescription: 'Get instant quotes with detailed breakdowns for different plating types, sizes, and color options',
   ogType: 'website'
 });
 
